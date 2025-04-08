@@ -2,6 +2,7 @@ import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { posts } from "@/server/db/schema";
+import { sql } from "drizzle-orm";
 
 export const postRouter = createTRPCRouter({
   hello: publicProcedure
@@ -21,10 +22,11 @@ export const postRouter = createTRPCRouter({
     }),
 
   getLatest: publicProcedure.query(async ({ ctx }) => {
-    const post = await ctx.db.query.posts.findFirst({
-      orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-    });
-
-    return post ?? null;
+    const post = await ctx.db
+      .select()
+      .from(posts)
+      .orderBy(sql`${posts.createdAt} DESC`)
+      .limit(1);
+    return post[0] ?? null;
   }),
 });

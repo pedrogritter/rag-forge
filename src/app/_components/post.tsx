@@ -5,7 +5,7 @@ import { useState } from "react";
 import { api } from "@/trpc/react";
 
 export function LatestPost() {
-  const [latestPost] = api.post.getLatest.useSuspenseQuery();
+  const [latestPost, error] = api.post.getLatest.useSuspenseQuery();
 
   const utils = api.useUtils();
   const [name, setName] = useState("");
@@ -16,13 +16,15 @@ export function LatestPost() {
     },
   });
 
+  if (error instanceof Error) {
+    return <p>Error loading latest post: {error.message}</p>;
+  }
+
+  const postName = latestPost ? latestPost.name : "";
+
   return (
     <div className="w-full max-w-xs">
-      {latestPost ? (
-        <p className="truncate">Your most recent post: {latestPost.name}</p>
-      ) : (
-        <p>You have no posts yet.</p>
-      )}
+      <p className="truncate">Your most recent post: {postName}</p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
