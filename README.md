@@ -1,29 +1,60 @@
-# Create T3 App
+**RAGForge** is an open-source developer framework and template for building expert-level, AI-powered agents using **Retrieval-Augmented Generation (RAG)**.
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+Each agent is focused on a specific domain (e.g., motorcycle mechanics, freediving, permaculture), powered by vector-embedded content (manuals, books, articles), and built on a shared, extendable base code structure. The goal is to allow developers to clone the base agent (RAGForge), customize its knowledge base and interface, and optionally receive updates from the main template repo via version tracking and a CLI update tool.
 
-## What's next? How do I make an app with this?
+---
 
-We try to keep this project as simple as possible, so you can start with just the scaffolding we set up for you, and add additional things later when they become necessary.
+## 🛠️ Tech Stack
 
-If you are not familiar with the different technologies used in this project, please refer to the respective docs. If you still are in the wind, please join our [Discord](https://t3.gg/discord) and ask for help.
+- **Frontend:** Next.js (App Router), React, TailwindCSS, Shadcn UI  
+- **Backend:** tRPC, Supabase (Postgres + pgvector), OpenAI API  
+- **Testing:** Jest (unit), Playwright or Cypress (e2e)  
+- **DevOps:** Vercel deployment, Docker for local PG/VectorDB, custom CLI for indexing and updates
 
-- [Next.js](https://nextjs.org)
-- [NextAuth.js](https://next-auth.js.org)
-- [Prisma](https://prisma.io)
-- [Drizzle](https://orm.drizzle.team)
-- [Tailwind CSS](https://tailwindcss.com)
-- [tRPC](https://trpc.io)
+---
 
-## Learn More
+## 🔧 Core Features
 
-To learn more about the [T3 Stack](https://create.t3.gg/), take a look at the following resources:
+- Command-line tools to parse & index PDFs into vector DB
+- Chat interface with expert AI agents using RAG
+- Shared base template repo with update mechanism (`pnpm updateAgent`)
+- Version tracking system to maintain sync with upstream template
+- Full test suite with ~70% code coverage
+- Built-in support for role behaviors, context tracking, and chat history
+- Extendable UI and system prompts per agent
 
-- [Documentation](https://create.t3.gg/)
-- [Learn the T3 Stack](https://create.t3.gg/en/faq#what-learning-resources-are-currently-available) — Check out these awesome tutorials
+---
 
-You can check out the [create-t3-app GitHub repository](https://github.com/t3-oss/create-t3-app) — your feedback and contributions are welcome!
+## 🔄 Code Architecture Goals
 
-## How do I deploy this?
+- **Modular:** Core logic lives in `core/`, shared by all agents
+- **Extendable:** Developers can freely add UI components, tools, and domain-specific logic
+- **Updatable:** Agents can safely merge updates from `ragforge` without losing customizations
 
-Follow our deployment guides for [Vercel](https://create.t3.gg/en/deployment/vercel), [Netlify](https://create.t3.gg/en/deployment/netlify) and [Docker](https://create.t3.gg/en/deployment/docker) for more information.
+---
+
+## 👨‍🔧 Use Cases
+
+- **MotoMind**: Motorcycle mechanic expert using service manuals  
+- **FreediveCoach**: Freediving training expert augmented with sports manuals  
+- **GaiaAI**: Permaculture/gardening advisor using field-specific literature  
+
+Each agent uses its own knowledge base and theme, but is based on the same `RAGForge` core template.
+
+---
+
+## 🧪 Work In Progress
+
+- CLI for:
+  - Agent setup and knowledge indexing
+  - Template updates with version diffing
+- Version tracking system via `ragforge.config.ts`
+- Template improvements: chat context growth, better state handling, agent-specific roles
+
+---
+
+## ✨ Contribution & Vision
+
+The long-term goal is to make **RAGForge** a modular and developer-friendly framework for building smart, contextual, domain-specific assistants. Contributions, feedback, and forks are welcome!
+
+---
