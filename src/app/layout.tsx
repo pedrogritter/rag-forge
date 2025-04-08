@@ -1,9 +1,10 @@
-import "@/styles/globals.css";
-
 import { type Metadata } from "next";
 import { Geist } from "next/font/google";
-
+import { cn } from "@/core/lib/utils";
+import { ThemeProvider } from "@/core/components/theme-provider";
 import { TRPCReactProvider } from "@/trpc/react";
+import { AppShell } from "@/core/components/app-shell";
+import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: "RAG Forge",
@@ -19,11 +20,26 @@ const geist = Geist({
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en" className={`${geist.variable}`}>
+    <html
+      lang="en"
+      className={cn("scroll-smooth", geist.variable)}
+      suppressHydrationWarning
+    >
       <body>
-        <TRPCReactProvider>{children}</TRPCReactProvider>
+        <TRPCReactProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <AppShell>{children}</AppShell>
+          </ThemeProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );
