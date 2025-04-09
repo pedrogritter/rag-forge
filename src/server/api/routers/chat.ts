@@ -1,10 +1,10 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { posts } from "@/server/db/schema";
+import { chats } from "@/server/db/schema";
 import { sql } from "drizzle-orm";
 
-export const postRouter = createTRPCRouter({
+export const chatRouter = createTRPCRouter({
   hello: publicProcedure
     .input(z.object({ text: z.string() }))
     .query(({ input }) => {
@@ -16,17 +16,17 @@ export const postRouter = createTRPCRouter({
   create: publicProcedure
     .input(z.object({ name: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
-      await ctx.db.insert(posts).values({
+      await ctx.db.insert(chats).values({
         name: input.name,
       });
     }),
 
   getLatest: publicProcedure.query(async ({ ctx }) => {
-    const post = await ctx.db
+    const chat = await ctx.db
       .select()
-      .from(posts)
-      .orderBy(sql`${posts.createdAt} DESC`)
+      .from(chats)
+      .orderBy(sql`${chats.createdAt} DESC`)
       .limit(1);
-    return post[0] ?? null;
+    return chat[0] ?? null;
   }),
 });

@@ -12,8 +12,8 @@ import { index, pgTableCreator } from "drizzle-orm/pg-core";
  */
 export const createTable = pgTableCreator((name) => `ragforge_${name}`);
 
-export const chat = createTable(
-  "chat",
+export const chats = createTable(
+  "chats",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     name: d.varchar({ length: 256 }),
