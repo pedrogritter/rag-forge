@@ -4,10 +4,10 @@ import Link from "next/link";
 // import { api, HydrateClient } from "@/trpc/server";
 import { db } from "@/server/db";
 import { posts } from "@/server/db/schema";
-import { HydrateClient } from "@/trpc/server";
+import { api, HydrateClient } from "@/trpc/server";
 
 export default async function Home() {
-  // const hello = await api.post.hello({ text: "from tRPC" });
+  const hello = await api.post.hello({ text: "from tRPC" });
 
   const result = await db.select().from(posts);
   console.log(result);
@@ -44,9 +44,9 @@ export default async function Home() {
             </Link>
           </div>
           <div className="flex flex-col items-center gap-2">
-            {/* <p className="text-2xl text-white">
+            <p className="text-2xl text-white">
               {hello ? hello.greeting : "Loading tRPC query..."}
-            </p> */}
+            </p>
           </div>
 
           {/* <LatestPost /> */}

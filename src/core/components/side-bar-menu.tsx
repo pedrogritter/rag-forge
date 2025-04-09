@@ -88,7 +88,7 @@ export function SideBarMenu() {
             className="w-full"
           >
             <Plus className={cn("h-4 w-4", isSidebarOpen && "mr-2")} />
-            {isSidebarOpen && <span>New Chat</span>}
+            {/* {isSidebarOpen && <span>New Chat</span>} */}
             <span className={cn(!isSidebarOpen && "sr-only")}>New Chat</span>
           </Button>
         </div>

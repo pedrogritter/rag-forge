@@ -10,10 +10,10 @@ import { index, pgTableCreator } from "drizzle-orm/pg-core";
  *
  * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
  */
-export const createTable = pgTableCreator((name) => `rag-forge_${name}`);
+export const createTable = pgTableCreator((name) => `ragforge_${name}`);
 
-export const posts = createTable(
-  "post",
+export const chat = createTable(
+  "chat",
   (d) => ({
     id: d.integer().primaryKey().generatedByDefaultAsIdentity(),
     name: d.varchar({ length: 256 }),
