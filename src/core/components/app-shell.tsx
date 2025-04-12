@@ -4,7 +4,7 @@ import React from "react";
 import { cn } from "@/core/lib/utils";
 import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 import { TopBar } from "./top-bar";
-import { Footer } from "./footer";
+// import { Footer } from "./footer";
 import { SideBarMenu } from "./side-bar-menu";
 
 interface AppShellProps {
@@ -22,7 +22,7 @@ export function AppShell({ children }: AppShellProps) {
         <aside
           className={cn(
             "fixed top-14 left-0 z-30 h-[calc(100vh-3.5rem)] border-r transition-all duration-300 ease-in-out",
-            isSidebarOpen ? "w-60" : "w-[52px]", // Width transitions
+            isSidebarOpen ? "w-65" : "w-[52px]", // Width transitions
             "hidden md:block", // Hide on mobile, handled by Sheet
           )}
         >

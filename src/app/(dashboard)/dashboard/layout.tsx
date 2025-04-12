@@ -4,7 +4,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-full w-full border-2 border-e-orange-700">
+    <div className="flex h-full w-full items-center justify-center align-middle">
       {children}
     </div>
   );

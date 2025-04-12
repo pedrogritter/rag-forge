@@ -3,8 +3,9 @@ import { Geist } from "next/font/google";
 import { cn } from "@/core/lib/utils";
 import { ThemeProvider } from "@/core/components/theme-provider";
 import { TRPCReactProvider } from "@/trpc/react";
-import { AppShell } from "@/core/components/app-shell";
 import "@/styles/globals.css";
+
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: "RAG Forge",
@@ -24,23 +25,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={cn("scroll-smooth", geist.variable)}
-      suppressHydrationWarning
-    >
-      <body>
-        <TRPCReactProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="dark"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <AppShell>{children}</AppShell>
-          </ThemeProvider>
-        </TRPCReactProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html
+        lang="en"
+        className={cn("scroll-smooth", geist.variable)}
+        suppressHydrationWarning
+      >
+        <body>
+          <TRPCReactProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+            </ThemeProvider>
+          </TRPCReactProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
