@@ -4,7 +4,7 @@ import { FileCode2, Sparkles } from "lucide-react";
 import { TopBar } from "@/core/components/top-bar";
 
 export default async function Home() {
-  const hello = await api.chat.hello({ text: "from tRPC" });
+  // const hello = await api.chat.hello({ text: "from tRPC" });
 
   return (
     <HydrateClient>
@@ -58,7 +58,7 @@ export default async function Home() {
           </div>
           <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">
-              {hello ? hello.greeting : "Loading tRPC query..."}
+              {/* {hello ? hello.greeting : "Loading tRPC query..."} */}
             </p>
             <Link
               className="flex max-w-xs flex-row items-center gap-4 rounded-xl bg-white/10 p-4 align-middle hover:bg-white/20"
