@@ -49,3 +49,23 @@ yarn-error.log*
 
 #ide memory-bank
 /memory-bank
+
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Cypress
+/cypress/videos
+/cypress/screenshots
+/cypress/downloads
+
+# Jest coverage
+/coverage
+.nyc_output/
+
+# data files
+*.pdf
+/data
+/embeddings
