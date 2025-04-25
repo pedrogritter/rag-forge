@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   title: "RAG Forge",
   description:
     "A customizable, open-source template for building AI RAG agents",
-  icons: [{ rel: "icon", url: "/library.png" }],
+  icons: [{ rel: "icon", url: "/iron.png" }],
 };
 
 const geist = Geist({
