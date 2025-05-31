@@ -16,6 +16,9 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const { user } = useUser();
 
   const usersInitials = user?.firstName?.substring(0, 0);
+  console.log(message);
+
+  // const messageContent = message.parts;
 
   return (
     <div
@@ -44,6 +47,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
       >
         <CardContent className="p-3 text-sm">
           {message.content.length > 0 ? (
+            // <div className="whitespace-pre-wrap">{message.content}</div>
             <div className="whitespace-pre-wrap">{message.content}</div>
           ) : (
             <span className="text-muted-foreground italic">

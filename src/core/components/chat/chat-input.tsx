@@ -8,6 +8,7 @@ interface ChatInputProps {
   isLoading: boolean;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
 }
 
 export function ChatInput({
@@ -15,18 +16,18 @@ export function ChatInput({
   isLoading,
   onSubmit,
   onChange,
+  disabled = false,
 }: ChatInputProps) {
   return (
     <form
       onSubmit={onSubmit}
-      className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky bottom-0 backdrop-blur"
-      //   className="relative flex h-[calc(100vh-3.5rem)] flex-col"
+      className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky bottom-0 border-t backdrop-blur"
     >
       <Input
         value={input}
         onChange={onChange}
         placeholder="Type your message..."
-        disabled={isLoading}
+        disabled={isLoading || disabled}
         className={cn(
           "pr-12",
           "focus-visible:ring-1",
@@ -36,11 +37,11 @@ export function ChatInput({
       <Button
         type="submit"
         size="icon"
-        disabled={isLoading}
+        disabled={isLoading || disabled}
         className={cn(
           "absolute top-1 right-1 h-8 w-8",
           "bg-transparent hover:bg-transparent",
-          isLoading && "cursor-not-allowed opacity-50",
+          (isLoading || disabled) && "cursor-not-allowed opacity-50",
         )}
       >
         <Send className="text-primary h-4 w-4" />

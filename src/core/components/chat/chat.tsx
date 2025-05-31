@@ -1,36 +1,33 @@
 "use client";
 
-import type { Message } from "ai";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useRef } from "react";
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
+import { Loader2 } from "lucide-react";
 import { cn } from "@/core/lib/utils";
-
-interface ChatProps {
-  initialMessages?: Message[];
-  className?: string;
-  maxSteps?: number;
-}
 
 export default function Chat({
   initialMessages = [],
   className = "",
   maxSteps = 3,
-}: ChatProps) {
-  const { messages, input, handleInputChange, handleSubmit, isLoading } =
-    useChat({ initialMessages, maxSteps });
+}) {
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    status,
+    error,
+    reload,
+  } = useChat({ initialMessages, maxSteps });
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, status]);
 
   return (
     <div
@@ -43,32 +40,38 @@ export default function Chat({
               {messages.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
-              {isLoading && (
-                <div className="text-muted-foreground text-sm italic">
+              {(status === "submitted" || status === "streaming") && (
+                <div className="text-muted-foreground flex items-center gap-2 text-sm italic">
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Processing...
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </div>
-            <div ref={messagesEndRef} />
           </ScrollArea>
         </div>
-        {/* Input form - sticky at bottom */}
         <div className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky bottom-0 border-t backdrop-blur">
           <div className="p-4">
             <ChatInput
               input={input}
-              isLoading={isLoading}
+              isLoading={status === "submitted" || status === "streaming"}
               onChange={handleInputChange}
               onSubmit={handleSubmit}
+              disabled={status !== "ready"}
             />
+            {error && (
+              <div className="mt-2 flex items-center gap-2 text-red-500">
+                <span>Something went wrong.</span>
+                <button
+                  type="button"
+                  className="cursor-pointer underline"
+                  onClick={() => reload}
+                >
+                  Retry
+                </button>
+              </div>
+            )}
           </div>
-
-          {/* <ChatInput
-          input={input}
-          isLoading={isLoading}
-          onChange={handleInputChange}
-          onSubmit={handleSubmit}
-        /> */}
         </div>
       </div>
     </div>
