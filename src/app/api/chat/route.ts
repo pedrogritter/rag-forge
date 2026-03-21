@@ -2,8 +2,14 @@ import { agentConfig, modelConfig } from "@/config";
 import { createResource } from "@/core/lib/actions/resources";
 import { findRelevantContent } from "@/core/lib/ai/embedding";
 import { openai } from "@ai-sdk/openai";
-import { streamText, tool } from "ai";
-import { z } from "zod";
+import {
+  type UIMessage,
+  convertToModelMessages,
+  stepCountIs,
+  streamText,
+  tool,
+} from "ai";
+import { z } from "zod/v3";
 import { type NextRequest, NextResponse } from "next/server";
 
 export const maxDuration = 30;
@@ -24,8 +30,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { messages } = body;
-    if (!messages || !Array.isArray(messages)) {
+    const { messages: rawMessages } = body;
+    if (!rawMessages || !Array.isArray(rawMessages)) {
       return NextResponse.json(
         {
           error: true,
@@ -41,7 +47,7 @@ export async function POST(req: NextRequest) {
       ...(allowStorage && {
         addResource: tool({
           description: `Add a resource to your knowledge base. If the user provides a random piece of knowledge unprompted, use this tool without asking for confirmation.`,
-          parameters: z.object({
+          inputSchema: z.object({
             content: z
               .string()
               .describe("the content or resource to add to the knowledge base"),
@@ -51,7 +57,7 @@ export async function POST(req: NextRequest) {
       }),
       getInformation: tool({
         description: `Get information from your knowledge base to answer questions`,
-        parameters: z.object({
+        inputSchema: z.object({
           question: z
             .string()
             .describe(
@@ -62,6 +68,10 @@ export async function POST(req: NextRequest) {
       }),
     };
 
+    const messages = await convertToModelMessages(
+      rawMessages as UIMessage[],
+    );
+
     let result;
     try {
       result = streamText({
@@ -69,7 +79,8 @@ export async function POST(req: NextRequest) {
         messages,
         temperature: modelConfig.temperature,
         system: agentConfig.systemPrompt,
-        tools: tools,
+        tools,
+        stopWhen: stepCountIs(3),
       });
     } catch (llmErr) {
       console.error("streamText error:", llmErr);
@@ -83,7 +94,7 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-      return result.toDataStreamResponse();
+      return result.toUIMessageStreamResponse();
     } catch (streamErr) {
       console.error("Data stream response error:", streamErr);
       return NextResponse.json(

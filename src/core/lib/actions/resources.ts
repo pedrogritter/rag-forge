@@ -50,6 +50,7 @@ export const createResource = async (input: NewResourceParams) => {
             resourceId: resource.id,
             content,
             embedding: sql`${formattedEmbedding}::vector`,
+            searchVector: sql`to_tsvector('english', ${content})`,
             createdAt: new Date(),
             updatedAt: new Date(),
           });

@@ -11,8 +11,6 @@ import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 
 import {
   SignInButton,
-  SignedIn,
-  SignedOut,
   UserButton,
   useUser,
 } from "@clerk/nextjs";
@@ -79,15 +77,13 @@ export function TopBar() {
           </Button>
 
           {/* Session Info / Auth */}
-          <SignedOut>
+          {!isSignedIn ? (
             <Button className="cursor-pointer bg-white/70 p-4 align-middle hover:bg-white/80">
               <SignInButton />
             </Button>
-            {/* <SignUpButton /> */}
-          </SignedOut>
-          <SignedIn>
+          ) : (
             <UserButton />
-          </SignedIn>
+          )}
         </div>
       </div>
     </header>

@@ -1,4 +1,4 @@
-import type { Message } from "ai";
+import type { UIMessage } from "ai";
 import { cn } from "@/core/lib/utils";
 import {
   Avatar,
@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/core/components/ui/card";
 import { useUser } from "@clerk/nextjs";
 
 interface ChatMessageProps {
-  message: Message;
+  message: UIMessage;
 }
 
 export function ChatMessage({ message }: ChatMessageProps) {
@@ -17,7 +17,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
 
   const usersInitials = user?.firstName?.substring(0, 0);
 
-  // const messageContent = message.parts;
+  const textContent = message.parts
+    .filter((p): p is { type: "text"; text: string } => p.type === "text")
+    .map((p) => p.text)
+    .join("");
+
+  const toolPart = message.parts.find((p) => p.type === "tool-invocation") as
+    | { type: "tool-invocation"; toolInvocation: { toolName: string } }
+    | undefined;
 
   return (
     <div
@@ -33,7 +40,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
         <AvatarFallback>
           {message.role === "user" ? (usersInitials ?? "U") : "A"}
         </AvatarFallback>
-        {/* Add actual avatars later if needed */}
       </Avatar>
 
       <Card
@@ -45,14 +51,13 @@ export function ChatMessage({ message }: ChatMessageProps) {
         )}
       >
         <CardContent className="p-3 text-sm">
-          {message.content.length > 0 ? (
-            // <div className="whitespace-pre-wrap">{message.content}</div>
-            <div className="whitespace-pre-wrap">{message.content}</div>
-          ) : (
+          {textContent.length > 0 ? (
+            <div className="whitespace-pre-wrap">{textContent}</div>
+          ) : toolPart ? (
             <span className="text-muted-foreground italic">
-              {"Calling tool:" + message.toolInvocations?.[0]?.toolName}
+              {"Calling tool: " + toolPart.toolInvocation.toolName}
             </span>
-          )}
+          ) : null}
         </CardContent>
       </Card>
     </div>

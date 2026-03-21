@@ -17,6 +17,7 @@ import { nanoid } from "nanoid";
 import pLimit from "p-limit";
 import pino from "pino";
 import "dotenv/config";
+import { vectorConfig } from "@/config/vector.config";
 
 // CLI flag for verbose logging
 const isVerbose = process.argv.includes("--verbose");
@@ -34,11 +35,11 @@ const logger = pino({
 });
 
 const PDF_DIRECTORY = path.join(process.cwd(), "src/data");
-const MAX_CHUNK_SIZE = 1000; // Chunk size limit in characters.
-const OVERLAP_SIZE = 50; // Overlap window between chunks
-const MAX_CHUNKS_PER_BATCH = 5; // Maximum batch to upload
-const MAX_PAGE_SIZE = 25000; // Page size limit in characters
-const EMBEDDING_TIMEOUT = 30000; // Timeout of embedding in seconds ? confirm
+const MAX_CHUNK_SIZE = vectorConfig.ingestion.chunkSize;
+const OVERLAP_SIZE = vectorConfig.ingestion.chunkOverlap;
+const MAX_CHUNKS_PER_BATCH = vectorConfig.ingestion.maxChunksPerBatch;
+const MAX_PAGE_SIZE = vectorConfig.ingestion.maxPageSize;
+const EMBEDDING_TIMEOUT = vectorConfig.ingestion.embeddingTimeout;
 
 // Interfaces
 interface PageContent {
@@ -299,6 +300,7 @@ async function insertEmbeddingAndMetadata({
     resourceId,
     content: chunkContent,
     embedding: sql`${formattedEmbedding}::vector`,
+    searchVector: sql`to_tsvector('english', ${chunkContent})`,
     createdAt: new Date(),
     updatedAt: new Date(),
   });

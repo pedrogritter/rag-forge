@@ -1,17 +1,19 @@
-import { FlatCompat } from "@eslint/eslintrc";
+import nextConfig from "eslint-config-next/core-web-vitals";
 import tseslint from "typescript-eslint";
 // @ts-ignore -- no types for this plugin
 import drizzle from "eslint-plugin-drizzle";
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-});
+// Filter out the "next/typescript" config object that registers
+// @typescript-eslint plugin — tseslint.configs.* will handle that.
+const nextWithoutTsPlugin = nextConfig.filter(
+  (c) => c.name !== "next/typescript",
+);
 
 export default tseslint.config(
   {
-    ignores: [".next"],
+    ignores: ["cypress/**", "cypress.config.ts"],
   },
-  ...compat.extends("next/core-web-vitals"),
+  ...nextWithoutTsPlugin,
   {
     files: ["**/*.ts", "**/*.tsx"],
     plugins: {

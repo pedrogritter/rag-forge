@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { POST } from "./route";
 import type { NextRequest } from "next/server";
 import { streamText } from "ai";
@@ -16,6 +15,8 @@ jest.mock("@ai-sdk/openai", () => ({
 jest.mock("ai", () => ({
   streamText: jest.fn(),
   tool: jest.fn((def: unknown) => def),
+  convertToModelMessages: jest.fn(async (msgs: unknown) => msgs),
+  stepCountIs: jest.fn((n: number) => n),
 }));
 
 const mockedStreamText = streamText as jest.MockedFunction<typeof streamText>;
@@ -61,11 +62,11 @@ describe("/api/chat POST", () => {
     expect(data.message).toMatch(/LLM error/);
   });
 
-  it("returns 500 for toDataStreamResponse error", async () => {
+  it("returns 500 for toUIMessageStreamResponse error", async () => {
     mockedStreamText.mockImplementation(
       () =>
         ({
-          toDataStreamResponse: () => {
+          toUIMessageStreamResponse: () => {
             throw new Error("Stream error");
           },
         }) as unknown as ReturnType<typeof streamText>,
@@ -80,18 +81,18 @@ describe("/api/chat POST", () => {
     expect(data.message).toMatch(/Stream error/);
   });
 
-  it("calls toDataStreamResponse on success", async () => {
-    const mockToDataStreamResponse = jest.fn(() => "streamed!");
+  it("calls toUIMessageStreamResponse on success", async () => {
+    const mockToUIMessageStreamResponse = jest.fn(() => "streamed!");
     mockedStreamText.mockImplementation(
       () =>
         ({
-          toDataStreamResponse: mockToDataStreamResponse,
+          toUIMessageStreamResponse: mockToUIMessageStreamResponse,
         }) as unknown as ReturnType<typeof streamText>,
     );
     const req = {
       json: async () => ({ messages: [] }),
     } as unknown as NextRequest;
     await POST(req);
-    expect(mockToDataStreamResponse).toHaveBeenCalled();
+    expect(mockToUIMessageStreamResponse).toHaveBeenCalled();
   });
 });

@@ -1,17 +1,20 @@
 export const vectorConfig = {
-  // db: {
-  //   type: 'supabase',
-  //   tableName: 'rag_embeddings',
-  //   metadataTable: 'rag_files',
-  // },
-  // ingestion: {
-  //   allowedFileTypes: ['.pdf', '.txt', '.md'],
-  //   chunkSize: 300,
-  //   chunkOverlap: 20,
-  //   splittingStrategy: 'recursive', // or 'by-page', 'semantic'
-  // },
-  // embedding: {
-  //   provider: 'openai',
-  //   model: 'text-embedding-3-small',
-  // }
+  embedding: {
+    model: "text-embedding-3-small",
+    dimensions: 512,
+  },
+  ingestion: {
+    chunkSize: 1000,
+    chunkOverlap: 50,
+    maxChunksPerBatch: 5,
+    maxPageSize: 25000,
+    embeddingTimeout: 30000,
+    splittingStrategy: "recursive" as const,
+  },
+  search: {
+    similarityThreshold: 0.3,
+    topK: 20,
+    keywordWeight: 0.3,
+    vectorWeight: 0.7,
+  },
 };

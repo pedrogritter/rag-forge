@@ -1,7 +1,7 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ChangeEvent } from "react";
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
@@ -9,25 +9,35 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/core/lib/utils";
 
 export default function Chat({
-  initialMessages = [],
   className = "",
-  maxSteps = 3,
+}: {
+  className?: string;
 }) {
   const {
     messages,
-    input,
-    handleInputChange,
-    handleSubmit,
+    sendMessage,
+    regenerate,
     status,
     error,
-    reload,
-  } = useChat({ initialMessages, maxSteps });
+  } = useChat();
 
+  const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, status]);
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    void sendMessage({ text: input });
+    setInput("");
+  };
+
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setInput(e.target.value);
+  };
 
   return (
     <div
@@ -65,7 +75,7 @@ export default function Chat({
                 <button
                   type="button"
                   className="cursor-pointer underline"
-                  onClick={() => reload()}
+                  onClick={() => void regenerate()}
                 >
                   Retry
                 </button>
