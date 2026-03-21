@@ -16,7 +16,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const { user } = useUser();
 
   const usersInitials = user?.firstName?.substring(0, 0);
-  console.log(message);
 
   // const messageContent = message.parts;
 

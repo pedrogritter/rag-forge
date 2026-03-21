@@ -1,5 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { POST } from "./route";
-import { NextRequest } from "next/server";
+import type { NextRequest } from "next/server";
+import { streamText } from "ai";
 
 // Mock dependencies
 jest.mock("@/core/lib/actions/resources", () => ({
@@ -13,8 +15,10 @@ jest.mock("@ai-sdk/openai", () => ({
 }));
 jest.mock("ai", () => ({
   streamText: jest.fn(),
-  tool: jest.fn((def) => def),
+  tool: jest.fn((def: unknown) => def),
 }));
+
+const mockedStreamText = streamText as jest.MockedFunction<typeof streamText>;
 
 describe("/api/chat POST", () => {
   afterEach(() => {
@@ -44,8 +48,7 @@ describe("/api/chat POST", () => {
   });
 
   it("returns 500 for streamText error", async () => {
-    const { streamText } = require("ai");
-    streamText.mockImplementation(() => {
+    mockedStreamText.mockImplementation(() => {
       throw new Error("LLM error");
     });
     const req = {
@@ -59,12 +62,14 @@ describe("/api/chat POST", () => {
   });
 
   it("returns 500 for toDataStreamResponse error", async () => {
-    const { streamText } = require("ai");
-    streamText.mockImplementation(() => ({
-      toDataStreamResponse: () => {
-        throw new Error("Stream error");
-      },
-    }));
+    mockedStreamText.mockImplementation(
+      () =>
+        ({
+          toDataStreamResponse: () => {
+            throw new Error("Stream error");
+          },
+        }) as unknown as ReturnType<typeof streamText>,
+    );
     const req = {
       json: async () => ({ messages: [] }),
     } as unknown as NextRequest;
@@ -77,10 +82,12 @@ describe("/api/chat POST", () => {
 
   it("calls toDataStreamResponse on success", async () => {
     const mockToDataStreamResponse = jest.fn(() => "streamed!");
-    const { streamText } = require("ai");
-    streamText.mockImplementation(() => ({
-      toDataStreamResponse: mockToDataStreamResponse,
-    }));
+    mockedStreamText.mockImplementation(
+      () =>
+        ({
+          toDataStreamResponse: mockToDataStreamResponse,
+        }) as unknown as ReturnType<typeof streamText>,
+    );
     const req = {
       json: async () => ({ messages: [] }),
     } as unknown as NextRequest;

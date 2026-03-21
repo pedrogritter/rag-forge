@@ -24,11 +24,11 @@ export const createResource = async (input: NewResourceParams) => {
       .returning();
 
     if (!resource?.id) {
-      console.error("Failed to create resource: No ID retrurned from DB");
+      console.error("Failed to create resource: No ID returned from DB");
       return "Error creating resource. Please try again.";
     }
 
-    console.log(`Resource created sucessfully with ID: ${resource.id}`);
+    console.log(`Resource created successfully with ID: ${resource.id}`);
 
     try {
       // Generate embedding for the resource content
@@ -56,18 +56,18 @@ export const createResource = async (input: NewResourceParams) => {
           insertedCount++;
         } catch (error) {
           console.error(
-            `Error insertinig embedding for chunk: "${content.substring(0, 25)}..."`,
-          ),
-            error;
+            `Error inserting embedding for chunk: "${content.substring(0, 25)}..."`,
+            error,
+          );
         }
       }
 
       console.log(
-        `Sucessfully inserted ${insertedCount}/${generatedEmbeddings.length} embeddings`,
+        `Successfully inserted ${insertedCount}/${generatedEmbeddings.length} embeddings`,
       );
       return {
         resourceId: resource.id,
-        sucess: true,
+        success: true,
         embeddingsCount: insertedCount,
       };
     } catch (embeddingError) {

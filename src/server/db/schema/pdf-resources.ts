@@ -1,11 +1,5 @@
 import { sql } from "drizzle-orm";
-import {
-  pgTable,
-  text,
-  timestamp,
-  varchar,
-  integer,
-} from "drizzle-orm/pg-core";
+import { text, timestamp, varchar, integer } from "drizzle-orm/pg-core";
 import { nanoid } from "@/core/lib/utils";
 import { resources } from "./resources";
 import { embeddings } from "./embeddings";

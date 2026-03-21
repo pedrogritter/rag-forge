@@ -7,5 +7,5 @@ export default {
   dbCredentials: {
     url: process.env.POSTGRES_URL!,
   },
-  tablesFilter: ["rag-forge_*"],
+  tablesFilter: ["ragforge_*"],
 } satisfies Config;

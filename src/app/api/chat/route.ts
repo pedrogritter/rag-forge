@@ -4,27 +4,27 @@ import { findRelevantContent } from "@/core/lib/ai/embedding";
 import { openai } from "@ai-sdk/openai";
 import { streamText, tool } from "ai";
 import { z } from "zod";
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
   try {
-    let body;
+    let body: { messages?: unknown };
     try {
-      body = await req.json();
+      body = (await req.json()) as { messages?: unknown };
     } catch (jsonErr) {
       console.error("Invalid JSON in request:", jsonErr);
       return NextResponse.json(
         {
           error: true,
-          message: String(jsonErr) || "Invalid JSON in request body.",
+          message: String(jsonErr) ?? "Invalid JSON in request body.",
         },
         { status: 400 },
       );
     }
 
-    const { messages } = body || {};
+    const { messages } = body;
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(
         {
@@ -76,7 +76,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: true,
-          message: String(llmErr) || "Failed to start LLM stream.",
+          message: String(llmErr) ?? "Failed to start LLM stream.",
         },
         { status: 500 },
       );
@@ -89,16 +89,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           error: true,
-          message: String(streamErr) || "Failed to stream response.",
+          message: String(streamErr) ?? "Failed to stream response.",
         },
         { status: 500 },
       );
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     // Log error for debugging
     console.error("LLM API call error:", error);
     return NextResponse.json(
-      { error: true, message: String(error) || "Internal server error." },
+      { error: true, message: String(error) ?? "Internal server error." },
       { status: 500 },
     );
   }

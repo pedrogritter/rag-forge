@@ -1,7 +1,7 @@
 // import { setTimeout } from "timers/promises";
 // export const dynamic = "force-dynamic";
 import Chat from "@/core/components/chat/chat";
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 export default async function Dashboard() {
   const { userId, redirectToSignIn } = await auth();

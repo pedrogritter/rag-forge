@@ -57,7 +57,7 @@ interface PDFPage {
   lines?: string[];
   text?: string;
   title?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // Utility functions
@@ -115,7 +115,7 @@ async function extractTextFromPDF(filePath: string): Promise<PDFContent> {
         const page = pdfPages[i];
         const rawContent = page?.lines
           ? page.lines.join(" ")
-          : page?.text || "";
+          : (page?.text ?? "");
         const content = rawContent
           .replace(/\s+/g, " ")
           .replace(/\n+/g, " ")
@@ -219,11 +219,11 @@ class EmbeddingTimeoutError extends Error {
 async function generateEmbeddingsWithTimeout(
   content: string | string[],
   timeout: number = EMBEDDING_TIMEOUT,
-): Promise<any> {
+): Promise<{ embedding: number[]; content: string }[]> {
   let timeoutId: NodeJS.Timeout;
   return Promise.race([
     generateEmbeddings(content),
-    new Promise((_, reject) => {
+    new Promise<never>((_, reject) => {
       timeoutId = setTimeout(() => {
         reject(new EmbeddingTimeoutError());
       }, timeout);
@@ -427,7 +427,7 @@ async function saveEmbeddings(
     return totalEmbeddings;
   } catch (error) {
     logger.error(
-      `Error saving embeddings for ${pdfContent.filename}: ${error}`,
+      `Error saving embeddings for ${pdfContent.filename}: ${String(error)}`,
     );
     throw error;
   }
@@ -463,12 +463,12 @@ async function processPDF(filePath: string): Promise<{
     const embeddingsCount = await saveEmbeddings(resourceId, pdfContent);
 
     logger.info(
-      `Sucessfully processed ${filename}: ${embeddingsCount} embeddings saved!`,
+      `Successfully processed ${filename}: ${embeddingsCount} embeddings saved!`,
     );
 
     return { filename, processed: true, embeddingsCount };
   } catch (error) {
-    logger.error(`Error processing PDF: ${filename}:, ${error}`);
+    logger.error(`Error processing PDF: ${filename}: ${String(error)}`);
     throw error;
   }
 }
@@ -478,7 +478,9 @@ async function processPDF(filePath: string): Promise<{
  */
 async function processAllPDFs(): Promise<void> {
   try {
-    await fs.mkdir(PDF_DIRECTORY, { recursive: true }).catch(() => {});
+    await fs.mkdir(PDF_DIRECTORY, { recursive: true }).catch(() => {
+      /* ignore */
+    });
 
     const files = await fs.readdir(PDF_DIRECTORY);
     const pdfFiles = files.filter((file) =>
@@ -531,7 +533,7 @@ async function processAllPDFs(): Promise<void> {
     logger.info(`Total embeddings generated: ${totalEmbeddings}`);
     logger.info("===============================");
   } catch (error) {
-    logger.error(`Error processing PDFs from directory: ${error}`);
+    logger.error(`Error processing PDFs from directory: ${String(error)}`);
     throw error;
   }
 }

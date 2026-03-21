@@ -65,7 +65,7 @@ export default function Chat({
                 <button
                   type="button"
                   className="cursor-pointer underline"
-                  onClick={() => reload}
+                  onClick={() => reload()}
                 >
                   Retry
                 </button>
