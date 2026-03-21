@@ -9,11 +9,7 @@ import { SideBarMenu } from "@/core/components/side-bar-menu";
 import { useTheme } from "next-themes";
 import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 
-import {
-  SignInButton,
-  UserButton,
-  useUser,
-} from "@clerk/nextjs";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 
 export function TopBar() {
   const { theme, setTheme } = useTheme();

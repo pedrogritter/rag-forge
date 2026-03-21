@@ -1,5 +1,11 @@
 import { sql } from "drizzle-orm";
-import { text, timestamp, varchar, customType, index } from "drizzle-orm/pg-core";
+import {
+  text,
+  timestamp,
+  varchar,
+  customType,
+  index,
+} from "drizzle-orm/pg-core";
 import { z } from "zod";
 
 import { nanoid } from "@/core/lib/utils";
@@ -43,10 +49,11 @@ export const embeddings = createTable(
       .default(sql`now()`),
   },
   (table) => [
-    index("embeddings_search_vector_idx")
-      .using("gin", table.searchVector),
-    index("embeddings_vector_hnsw_idx")
-      .using("hnsw", sql`${table.embedding} vector_cosine_ops`),
+    index("embeddings_search_vector_idx").using("gin", table.searchVector),
+    index("embeddings_vector_hnsw_idx").using(
+      "hnsw",
+      sql`${table.embedding} vector_cosine_ops`,
+    ),
   ],
 );
 
