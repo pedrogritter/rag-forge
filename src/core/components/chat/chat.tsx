@@ -1,6 +1,7 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
+import { useChat, type UIMessage } from "@ai-sdk/react";
+import { DefaultChatTransport } from "ai";
 import { useEffect, useRef, useState, type FormEvent, type ChangeEvent } from "react";
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
@@ -9,8 +10,12 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/core/lib/utils";
 
 export default function Chat({
+  id,
+  initialMessages,
   className = "",
 }: {
+  id: string;
+  initialMessages?: UIMessage[];
   className?: string;
 }) {
   const {
@@ -19,7 +24,17 @@ export default function Chat({
     regenerate,
     status,
     error,
-  } = useChat();
+  } = useChat({
+    id,
+    messages: initialMessages,
+    transport: new DefaultChatTransport({
+      api: "/api/chat",
+      // Send only the last message — server loads previous from DB
+      prepareSendMessagesRequest({ messages, id }) {
+        return { body: { message: messages[messages.length - 1], id } };
+      },
+    }),
+  });
 
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);

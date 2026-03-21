@@ -1,18 +1,16 @@
-// import { setTimeout } from "timers/promises";
-// export const dynamic = "force-dynamic";
-import Chat from "@/core/components/chat/chat";
 import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
+
+import { db } from "@/server/db";
+import { chats } from "@/server/db/schema";
+import { nanoid } from "@/core/lib/utils";
 
 export default async function Dashboard() {
   const { userId, redirectToSignIn } = await auth();
-
   if (!userId) return redirectToSignIn();
 
-  return (
-    <main className="container mx-auto flex h-full flex-1 justify-center px-4 py-8">
-      <div className="flex w-full max-w-2xl flex-col">
-        <Chat className="flex h-full flex-1 flex-col" />
-      </div>
-    </main>
-  );
+  // Create a new chat and redirect to it
+  const id = nanoid();
+  await db.insert(chats).values({ id, userId });
+  redirect(`/dashboard/c/${id}`);
 }

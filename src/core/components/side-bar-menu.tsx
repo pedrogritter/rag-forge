@@ -2,6 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 import { Button } from "@/core/components/ui/button";
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { Separator } from "@/core/components/ui/separator";
@@ -12,9 +14,11 @@ import {
   Folder,
   MessageSquare,
   Plus,
+  Trash2,
 } from "lucide-react";
 import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 import { cn } from "@/core/lib/utils";
+import { api } from "@/trpc/react";
 
 interface NavItem {
   href: string;
@@ -22,13 +26,6 @@ interface NavItem {
   icon: React.ElementType;
   disabled?: boolean;
 }
-
-// Mock Chat History Data
-const mockChatHistory: NavItem[] = [
-  { href: "/chat/1", label: "Introduction to RAG", icon: MessageSquare },
-  { href: "/chat/2", label: "Vector Database Setup", icon: MessageSquare },
-  { href: "/chat/3", label: "Agent Configuration Tips", icon: MessageSquare },
-];
 
 const mainNavItems: NavItem[] = [
   { href: "/", label: "Home", icon: Home },
@@ -71,6 +68,32 @@ function SidebarNav({ className, items, isCollapsed }: SidebarNavProps) {
 
 export function SideBarMenu() {
   const { isOpen: isSidebarOpen } = useSidebarStore();
+  const { user } = useUser();
+  const router = useRouter();
+  const utils = api.useUtils();
+
+  const { data: chatList } = api.chats.list.useQuery(
+    { userId: user?.id ?? "" },
+    { enabled: !!user?.id },
+  );
+
+  const createChat = api.chats.create.useMutation({
+    onSuccess: (data) => {
+      void utils.chats.list.invalidate();
+      router.push(`/dashboard/c/${data.id}`);
+    },
+  });
+
+  const deleteChat = api.chats.delete.useMutation({
+    onSuccess: () => {
+      void utils.chats.list.invalidate();
+    },
+  });
+
+  const handleNewChat = () => {
+    if (!user?.id) return;
+    createChat.mutate({ userId: user.id });
+  };
 
   return (
     <div
@@ -86,9 +109,10 @@ export function SideBarMenu() {
             variant="outline"
             size={isSidebarOpen ? "default" : "icon"}
             className="w-full"
+            onClick={handleNewChat}
+            disabled={createChat.isPending}
           >
             <Plus className={cn("h-4 w-4", isSidebarOpen && "mr-2")} />
-            {/* {isSidebarOpen && <span>New Chat</span>} */}
             <span className={cn(!isSidebarOpen && "sr-only")}>New Chat</span>
           </Button>
         </div>
@@ -103,7 +127,42 @@ export function SideBarMenu() {
           >
             History
           </h2>
-          <SidebarNav items={mockChatHistory} isCollapsed={!isSidebarOpen} />
+          <div className="flex flex-col gap-1">
+            {chatList?.map((chat) => (
+              <div key={chat.id} className="group relative">
+                <Button
+                  variant="ghost"
+                  className={cn(
+                    "h-9 w-full justify-start",
+                    isSidebarOpen ? "pr-8" : "justify-center px-2",
+                  )}
+                  asChild
+                >
+                  <Link
+                    href={`/dashboard/c/${chat.id}`}
+                    title={isSidebarOpen ? undefined : (chat.title ?? "Untitled")}
+                  >
+                    <MessageSquare className={cn("h-4 w-4", !isSidebarOpen && "mr-0", isSidebarOpen && "mr-2")} />
+                    <span className={cn(isSidebarOpen ? "truncate" : "sr-only")}>
+                      {chat.title ?? "Untitled"}
+                    </span>
+                  </Link>
+                </Button>
+                {isSidebarOpen && (
+                  <button
+                    type="button"
+                    className="text-muted-foreground hover:text-destructive absolute top-1/2 right-1 hidden -translate-y-1/2 cursor-pointer group-hover:block"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      deleteChat.mutate({ id: chat.id });
+                    }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         <Separator className="my-4" />
