@@ -9,8 +9,8 @@ jest.mock("@/core/lib/actions/resources", () => ({
 jest.mock("@/core/lib/ai/embedding", () => ({
   findRelevantContent: jest.fn(),
 }));
-jest.mock("@ai-sdk/openai", () => ({
-  openai: jest.fn(),
+jest.mock("@/core/lib/ai/providers", () => ({
+  getChatModel: jest.fn(() => "mock-model"),
 }));
 jest.mock("ai", () => ({
   streamText: jest.fn(),

@@ -1,7 +1,7 @@
 import { agentConfig, modelConfig } from "@/config";
 import { createResource } from "@/core/lib/actions/resources";
 import { findRelevantContent } from "@/core/lib/ai/embedding";
-import { openai } from "@ai-sdk/openai";
+import { getChatModel } from "@/core/lib/ai/providers";
 import {
   type UIMessage,
   convertToModelMessages,
@@ -43,7 +43,7 @@ async function generateChatTitle(
   assistantMessage: string,
 ): Promise<string> {
   const { text } = await generateText({
-    model: openai(modelConfig.model),
+    model: getChatModel(),
     system:
       "Generate a concise title (3-6 words) for this conversation. Return only the title, no quotes or punctuation.",
     prompt: `User: ${userMessage}\nAssistant: ${assistantMessage}`,
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest) {
     let result;
     try {
       result = streamText({
-        model: openai(modelConfig.model),
+        model: getChatModel(),
         messages: modelMessages,
         temperature: modelConfig.temperature,
         system: agentConfig.systemPrompt,

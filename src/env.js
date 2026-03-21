@@ -8,7 +8,10 @@ export const env = createEnv({
    */
   server: {
     POSTGRES_URL: z.string().url(),
-    OPENAI_API_KEY: z.string().min(1),
+    // LLM provider keys — set the one(s) matching your configured provider
+    OPENAI_API_KEY: z.string().min(1).optional(),
+    ANTHROPIC_API_KEY: z.string().min(1).optional(),
+    GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1).optional(),
     CLERK_SECRET_KEY: z.string().min(1),
     NODE_ENV: z
       .enum(["development", "test", "production"])
@@ -31,6 +34,8 @@ export const env = createEnv({
   runtimeEnv: {
     POSTGRES_URL: process.env.POSTGRES_URL,
     OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
+    GOOGLE_GENERATIVE_AI_API_KEY: process.env.GOOGLE_GENERATIVE_AI_API_KEY,
     CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
       process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,

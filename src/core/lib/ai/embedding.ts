@@ -1,11 +1,11 @@
 import { embed, embedMany } from "ai";
-import { openai } from "@ai-sdk/openai";
 import { db } from "@/server/db";
 import { cosineDistance, desc, gt, sql } from "drizzle-orm";
 import { embeddings } from "@/server/db/schema/embeddings";
 import { vectorConfig } from "@/config/vector.config";
+import { getEmbeddingModel } from "@/core/lib/ai/providers";
 
-const embeddingModel = openai.embedding(vectorConfig.embedding.model);
+const embeddingModel = getEmbeddingModel();
 
 const embeddingProviderOptions = {
   openai: { dimensions: vectorConfig.embedding.dimensions },
