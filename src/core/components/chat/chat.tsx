@@ -2,7 +2,13 @@
 
 import { useChat, type UIMessage } from "@ai-sdk/react";
 import { DefaultChatTransport } from "ai";
-import { useEffect, useRef, useState, type FormEvent, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type ChangeEvent,
+} from "react";
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
@@ -18,13 +24,7 @@ export default function Chat({
   initialMessages?: UIMessage[];
   className?: string;
 }) {
-  const {
-    messages,
-    sendMessage,
-    regenerate,
-    status,
-    error,
-  } = useChat({
+  const { messages, sendMessage, regenerate, status, error } = useChat({
     id,
     messages: initialMessages,
     transport: new DefaultChatTransport({

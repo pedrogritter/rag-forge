@@ -15,11 +15,7 @@ export default async function ChatPage(props: {
 
   const { id } = await props.params;
 
-  const [chat] = await db
-    .select()
-    .from(chats)
-    .where(eq(chats.id, id))
-    .limit(1);
+  const [chat] = await db.select().from(chats).where(eq(chats.id, id)).limit(1);
 
   if (!chat || chat.userId !== userId) return notFound();
 

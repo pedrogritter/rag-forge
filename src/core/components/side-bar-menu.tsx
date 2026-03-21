@@ -140,10 +140,20 @@ export function SideBarMenu() {
                 >
                   <Link
                     href={`/dashboard/c/${chat.id}`}
-                    title={isSidebarOpen ? undefined : (chat.title ?? "Untitled")}
+                    title={
+                      isSidebarOpen ? undefined : (chat.title ?? "Untitled")
+                    }
                   >
-                    <MessageSquare className={cn("h-4 w-4", !isSidebarOpen && "mr-0", isSidebarOpen && "mr-2")} />
-                    <span className={cn(isSidebarOpen ? "truncate" : "sr-only")}>
+                    <MessageSquare
+                      className={cn(
+                        "h-4 w-4",
+                        !isSidebarOpen && "mr-0",
+                        isSidebarOpen && "mr-2",
+                      )}
+                    />
+                    <span
+                      className={cn(isSidebarOpen ? "truncate" : "sr-only")}
+                    >
                       {chat.title ?? "Untitled"}
                     </span>
                   </Link>

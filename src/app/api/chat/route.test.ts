@@ -75,7 +75,11 @@ describe("/api/chat POST", () => {
     });
     const req = {
       json: async () => ({
-        message: { id: "m1", role: "user", parts: [{ type: "text", text: "hi" }] },
+        message: {
+          id: "m1",
+          role: "user",
+          parts: [{ type: "text", text: "hi" }],
+        },
         id: "chat-1",
       }),
     } as unknown as NextRequest;
@@ -98,7 +102,11 @@ describe("/api/chat POST", () => {
     );
     const req = {
       json: async () => ({
-        message: { id: "m1", role: "user", parts: [{ type: "text", text: "hi" }] },
+        message: {
+          id: "m1",
+          role: "user",
+          parts: [{ type: "text", text: "hi" }],
+        },
         id: "chat-1",
       }),
     } as unknown as NextRequest;
@@ -120,7 +128,11 @@ describe("/api/chat POST", () => {
     );
     const req = {
       json: async () => ({
-        message: { id: "m1", role: "user", parts: [{ type: "text", text: "hi" }] },
+        message: {
+          id: "m1",
+          role: "user",
+          parts: [{ type: "text", text: "hi" }],
+        },
         id: "chat-1",
       }),
     } as unknown as NextRequest;
