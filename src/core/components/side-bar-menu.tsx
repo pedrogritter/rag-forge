@@ -19,6 +19,7 @@ import {
 import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 import { cn } from "@/core/lib/utils";
 import { api } from "@/trpc/react";
+import { toast } from "sonner";
 
 interface NavItem {
   href: string;
@@ -82,11 +83,18 @@ export function SideBarMenu() {
       void utils.chats.list.invalidate();
       router.push(`/dashboard/c/${data.id}`);
     },
+    onError: () => {
+      toast.error("Failed to create chat");
+    },
   });
 
   const deleteChat = api.chats.delete.useMutation({
     onSuccess: () => {
       void utils.chats.list.invalidate();
+      toast.success("Chat deleted");
+    },
+    onError: () => {
+      toast.error("Failed to delete chat");
     },
   });
 

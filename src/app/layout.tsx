@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import { cn } from "@/core/lib/utils";
 import { ThemeProvider } from "@/core/components/theme-provider";
 import { TRPCReactProvider } from "@/trpc/react";
+import { Toaster } from "sonner";
 import "@/styles/globals.css";
 
 import { ClerkProvider } from "@clerk/nextjs";
@@ -42,6 +43,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               {children}
+              <Toaster richColors position="bottom-right" />
             </ThemeProvider>
           </TRPCReactProvider>
         </body>
