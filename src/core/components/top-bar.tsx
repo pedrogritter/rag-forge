@@ -74,9 +74,11 @@ export function TopBar() {
 
           {/* Session Info / Auth */}
           {!isSignedIn ? (
-            <Button className="cursor-pointer bg-white/70 p-4 align-middle hover:bg-white/80">
-              <SignInButton />
-            </Button>
+            <SignInButton>
+              <Button className="cursor-pointer bg-white/70 p-4 align-middle hover:bg-white/80">
+                Sign in
+              </Button>
+            </SignInButton>
           ) : (
             <UserButton />
           )}
