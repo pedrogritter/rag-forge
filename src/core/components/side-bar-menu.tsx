@@ -20,6 +20,7 @@ import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 import { cn } from "@/core/lib/utils";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
+import { DocumentUpload } from "./document-upload";
 
 interface NavItem {
   href: string;
@@ -124,6 +125,13 @@ export function SideBarMenu() {
             <span className={cn(!isSidebarOpen && "sr-only")}>New Chat</span>
           </Button>
         </div>
+
+        {/* Document Upload — visible only when sidebar is open */}
+        {isSidebarOpen && (
+          <div className="px-1 pb-2">
+            <DocumentUpload />
+          </div>
+        )}
 
         {/* Chat History */}
         <div className={cn("pb-2", isSidebarOpen ? "px-1" : "px-0")}>
