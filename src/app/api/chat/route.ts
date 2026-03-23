@@ -2,6 +2,7 @@ import { agentConfig, modelConfig } from "@/config";
 import { createResource } from "@/core/lib/actions/resources";
 import { findRelevantContent } from "@/core/lib/ai/embedding";
 import { getChatModel } from "@/core/lib/ai/providers";
+import { rateLimit } from "@/core/lib/rate-limit";
 import {
   type UIMessage,
   convertToModelMessages,
@@ -18,6 +19,10 @@ import { chats } from "@/server/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export const maxDuration = 30;
+
+/** Max chat requests per IP per minute. */
+const RATE_LIMIT = 20;
+const RATE_WINDOW_MS = 60_000;
 
 /** Load previous messages for a chat from the database. */
 async function loadChat(chatId: string): Promise<UIMessage[]> {
@@ -54,6 +59,19 @@ async function generateChatTitle(
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting (by IP)
+    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const rl = rateLimit(ip, RATE_LIMIT, RATE_WINDOW_MS);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        { error: true, message: "Too many requests. Please try again shortly." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) },
+        },
+      );
+    }
+
     let body: { message?: unknown; id?: unknown };
     try {
       body = (await req.json()) as { message?: unknown; id?: unknown };

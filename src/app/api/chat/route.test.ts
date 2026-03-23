@@ -12,6 +12,9 @@ jest.mock("@/core/lib/ai/embedding", () => ({
 jest.mock("@/core/lib/ai/providers", () => ({
   getChatModel: jest.fn(() => "mock-model"),
 }));
+jest.mock("@/core/lib/rate-limit", () => ({
+  rateLimit: jest.fn(() => ({ allowed: true })),
+}));
 jest.mock("ai", () => ({
   streamText: jest.fn(),
   generateText: jest.fn(),
@@ -42,6 +45,9 @@ jest.mock("@/server/db/schema", () => ({
 
 const mockedStreamText = streamText as jest.MockedFunction<typeof streamText>;
 
+/** Minimal mock headers for NextRequest */
+const mockHeaders = { get: jest.fn(() => "127.0.0.1") };
+
 describe("/api/chat POST", () => {
   afterEach(() => {
     jest.clearAllMocks();
@@ -49,6 +55,7 @@ describe("/api/chat POST", () => {
 
   it("returns 400 for invalid JSON", async () => {
     const req = {
+      headers: mockHeaders,
       json: async () => {
         throw new Error("Invalid JSON");
       },
@@ -61,7 +68,7 @@ describe("/api/chat POST", () => {
   });
 
   it("returns 400 for missing message or id", async () => {
-    const req = { json: async () => ({}) } as unknown as NextRequest;
+    const req = { headers: mockHeaders, json: async () => ({}) } as unknown as NextRequest;
     const res = await POST(req);
     expect(res.status).toBe(400);
     const data = (await res.json()) as { error: boolean; message: string };
@@ -74,6 +81,7 @@ describe("/api/chat POST", () => {
       throw new Error("LLM error");
     });
     const req = {
+      headers: mockHeaders,
       json: async () => ({
         message: {
           id: "m1",
@@ -101,6 +109,7 @@ describe("/api/chat POST", () => {
         }) as unknown as ReturnType<typeof streamText>,
     );
     const req = {
+      headers: mockHeaders,
       json: async () => ({
         message: {
           id: "m1",
@@ -127,6 +136,7 @@ describe("/api/chat POST", () => {
         }) as unknown as ReturnType<typeof streamText>,
     );
     const req = {
+      headers: mockHeaders,
       json: async () => ({
         message: {
           id: "m1",
