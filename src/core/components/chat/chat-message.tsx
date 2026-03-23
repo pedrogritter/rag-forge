@@ -52,7 +52,11 @@ function ToolInvocationPart({ part }: { part: ToolPart }) {
     );
   }
 
-  if (isSearching && state === "output-available" && Array.isArray(part.output)) {
+  if (
+    isSearching &&
+    state === "output-available" &&
+    Array.isArray(part.output)
+  ) {
     const sources = part.output as SourceChunk[];
     if (sources.length === 0) return null;
 
