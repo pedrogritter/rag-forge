@@ -14,6 +14,7 @@ import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/core/lib/utils";
+import { toast } from "sonner";
 
 export default function Chat({
   id,
@@ -34,6 +35,9 @@ export default function Chat({
         return { body: { message: messages[messages.length - 1], id } };
       },
     }),
+    onError: (err) => {
+      toast.error(err.message || "Something went wrong");
+    },
   });
 
   const [input, setInput] = useState("");
@@ -65,10 +69,10 @@ export default function Chat({
               {messages.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
-              {(status === "submitted" || status === "streaming") && (
-                <div className="text-muted-foreground flex items-center gap-2 text-sm italic">
+              {status === "submitted" && (
+                <div className="text-muted-foreground flex items-center gap-2 px-1 text-sm italic">
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Processing...
+                  Thinking...
                 </div>
               )}
               <div ref={messagesEndRef} />
