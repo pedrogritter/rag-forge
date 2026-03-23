@@ -8,12 +8,14 @@ import { Menu, Sun, Moon, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { SideBarMenu } from "@/core/components/side-bar-menu";
 import { useTheme } from "next-themes";
 import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
+import { useThemeConfigStore } from "@/core/hooks/use-theme-config";
 
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 
 export function TopBar() {
   const { theme, setTheme } = useTheme();
   const { isOpen: isSidebarOpen, toggleSidebar } = useSidebarStore();
+  const { brandName } = useThemeConfigStore();
   const { isSignedIn } = useUser();
 
   const toggleTheme = () => {
@@ -57,7 +59,7 @@ export function TopBar() {
         <Link href="/" className="mr-6 flex items-center space-x-2 pl-4">
           {/* Placeholder for a real logo */}
           {/* <Icons.logo className="h-6 w-6" /> Replace with actual logo icon */}
-          <span className="font-bold sm:inline-block">RAG Forge</span>
+          <span className="font-bold sm:inline-block">{brandName}</span>
         </Link>
 
         {/* Spacer */}

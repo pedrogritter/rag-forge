@@ -10,7 +10,6 @@ import { Separator } from "@/core/components/ui/separator";
 import {
   Home,
   Settings,
-  HelpCircle,
   Folder,
   MessageSquare,
   Plus,
@@ -35,8 +34,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const secondaryNavItems: NavItem[] = [
-  { href: "/settings", label: "Settings", icon: Settings },
-  { href: "/faq", label: "FAQ", icon: HelpCircle },
+  { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
 interface SidebarNavProps extends React.HTMLAttributes<HTMLDivElement> {
