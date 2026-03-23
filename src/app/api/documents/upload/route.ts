@@ -45,7 +45,10 @@ export async function POST(req: NextRequest) {
 
     if (extracted.chunks.length === 0) {
       return NextResponse.json(
-        { error: true, message: "No content could be extracted from the file." },
+        {
+          error: true,
+          message: "No content could be extracted from the file.",
+        },
         { status: 422 },
       );
     }

@@ -15,9 +15,7 @@ export const textProcessor: DocumentProcessor = {
     }
 
     const isMarkdown = /\.mdx?$/.test(filename);
-    const textChunks = isMarkdown
-      ? chunkMarkdown(content)
-      : chunkText(content);
+    const textChunks = isMarkdown ? chunkMarkdown(content) : chunkText(content);
 
     const chunks: DocumentChunk[] = textChunks.map((text) => ({
       content: text,

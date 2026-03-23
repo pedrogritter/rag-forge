@@ -27,7 +27,10 @@ async function generateEmbeddingsWithTimeout(
   return Promise.race([
     generateEmbeddings(content),
     new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(() => reject(new EmbeddingTimeoutError()), timeout);
+      timeoutId = setTimeout(
+        () => reject(new EmbeddingTimeoutError()),
+        timeout,
+      );
     }),
   ]).finally(() => {
     if (timeoutId!) clearTimeout(timeoutId);

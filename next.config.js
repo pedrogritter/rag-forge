@@ -5,8 +5,6 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
-const config = {
-  serverExternalPackages: ["pdf-text-reader", "pdfjs-dist"],
-};
+const config = {};
 
 export default config;

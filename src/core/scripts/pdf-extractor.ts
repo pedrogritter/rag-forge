@@ -11,7 +11,7 @@ import {
 } from "@/server/db/schema";
 import { db } from "@/server/db";
 import { eq, and, sql } from "drizzle-orm";
-import { readPdfText } from "pdf-text-reader";
+import { extractText } from "unpdf";
 import { generateEmbeddings } from "../lib/ai/embedding";
 import { nanoid } from "nanoid";
 import pLimit from "p-limit";
@@ -51,14 +51,6 @@ interface PageContent {
 interface PDFContent {
   filename: string;
   pages: PageContent[];
-}
-
-// These are specifics to pdf reader extension
-interface PDFPage {
-  lines?: string[];
-  text?: string;
-  title?: string;
-  [key: string]: unknown;
 }
 
 // Utility functions
@@ -107,34 +99,29 @@ async function extractTextFromPDF(filePath: string): Promise<PDFContent> {
   const filename = path.basename(filePath);
 
   try {
-    const pdfPages = (await readPdfText(filePath)) as PDFPage[];
-    logger.info(`Sucessfully read ${pdfPages.length} pages from PDF file`);
+    const fileBuffer = await fs.readFile(filePath);
+    const result = await extractText(new Uint8Array(fileBuffer), { mergePages: false });
+    const pdfPages = result.text;
+    logger.info(`Successfully read ${pdfPages.length} pages from PDF file`);
     const pages: PageContent[] = [];
 
-    if (Array.isArray(pdfPages)) {
-      for (let i = 0; i < pdfPages.length; i++) {
-        const page = pdfPages[i];
-        const rawContent = page?.lines
-          ? page.lines.join(" ")
-          : (page?.text ?? "");
-        const content = rawContent
-          .replace(/\s+/g, " ")
-          .replace(/\n+/g, " ")
-          .trim();
+    for (let i = 0; i < pdfPages.length; i++) {
+      const content = (pdfPages[i] ?? "")
+        .replace(/\s+/g, " ")
+        .replace(/\n+/g, " ")
+        .trim();
 
-        if (content.length > 0) {
-          logger.info(
-            `Page ${i + 1}: Content Length = ${content.length} characters`,
-          );
+      if (content.length > 0) {
+        logger.info(
+          `Page ${i + 1}: Content Length = ${content.length} characters`,
+        );
 
-          pages.push({
-            pageNumber: i + 1,
-            title: page?.title,
-            content: content,
-          });
-        } else {
-          logger.info(`Page ${i + 1}: Skipping empty page`);
-        }
+        pages.push({
+          pageNumber: i + 1,
+          content: content,
+        });
+      } else {
+        logger.info(`Page ${i + 1}: Skipping empty page`);
       }
     }
     logger.info(`Processed ${pages.length} pages from PDF file.`);

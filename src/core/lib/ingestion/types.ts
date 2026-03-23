@@ -25,10 +25,7 @@ export interface DocumentProcessor {
   supportedExtensions: string[];
 
   /** Extract text from a file buffer and return structured chunks */
-  extract(
-    buffer: Buffer,
-    filename: string,
-  ): Promise<ExtractedDocument>;
+  extract(buffer: Buffer, filename: string): Promise<ExtractedDocument>;
 }
 
 export interface IngestionResult {

@@ -2,7 +2,12 @@ import type { DocumentProcessor } from "./types";
 import { pdfProcessor } from "./processors/pdf";
 import { textProcessor } from "./processors/text";
 
-export type { DocumentProcessor, ExtractedDocument, IngestionResult, DocumentChunk } from "./types";
+export type {
+  DocumentProcessor,
+  ExtractedDocument,
+  IngestionResult,
+  DocumentChunk,
+} from "./types";
 export { ingestDocument } from "./pipeline";
 export { chunkText, chunkMarkdown } from "./chunking";
 

@@ -51,7 +51,12 @@ export function DocumentUpload({ className }: { className?: string }) {
       });
 
       const data = (await res.json()) as
-        | { success: true; filename: string; chunksProcessed: number; embeddingsCount: number }
+        | {
+            success: true;
+            filename: string;
+            chunksProcessed: number;
+            embeddingsCount: number;
+          }
         | { error: true; message: string };
 
       if (!res.ok || "error" in data) {
