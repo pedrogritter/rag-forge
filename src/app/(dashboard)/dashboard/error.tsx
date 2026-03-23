@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { Button } from "@/core/components/ui/button";
+import { Card, CardContent } from "@/core/components/ui/card";
+import { AlertTriangle } from "lucide-react";
 
 export default function DashboardError({
   error,
@@ -10,21 +13,32 @@ export default function DashboardError({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
     console.error(error);
   }, [error]);
 
   return (
-    <div>
-      <h2>Something went wrong!</h2>
-      <button
-        onClick={
-          // Attempt to recover by trying to re-render the segment
-          () => reset()
-        }
-      >
-        Try again
-      </button>
+    <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardContent className="flex flex-col items-center gap-4 pt-6 text-center">
+          <div className="bg-destructive/10 rounded-full p-3">
+            <AlertTriangle className="text-destructive h-6 w-6" />
+          </div>
+          <div>
+            <h2 className="text-lg font-semibold">Something went wrong</h2>
+            <p className="text-muted-foreground mt-1 text-sm">
+              {error.message || "An unexpected error occurred."}
+            </p>
+            {error.digest && (
+              <p className="text-muted-foreground mt-1 font-mono text-xs">
+                Error ID: {error.digest}
+              </p>
+            )}
+          </div>
+          <Button onClick={() => reset()} variant="outline">
+            Try again
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
