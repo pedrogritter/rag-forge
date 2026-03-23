@@ -104,9 +104,9 @@ export const findRelevantContent = async (userQuery: string) => {
     }
   });
 
-  // Sort by fused score and return top results
+  // Sort by fused score and return top results with similarity for attribution
   return Array.from(scoreMap.values())
     .sort((a, b) => b.score - a.score)
     .slice(0, search.topK)
-    .map(({ content }) => ({ content }));
+    .map(({ content, score }) => ({ content, similarity: score }));
 };
