@@ -330,3 +330,8 @@
     transparent
   );
 }
+
+/* ── Gradient accent for active/interactive elements ── */
+.rf-accent-glow {
+  box-shadow: 0 0 12px var(--rf-accent-subtle), 0 0 4px var(--rf-accent-subtle);
+}

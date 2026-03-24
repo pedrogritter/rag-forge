@@ -77,7 +77,7 @@ export function ChatInput({
         className={cn(
           "absolute top-1/2 right-1.5 h-8 w-8 -translate-y-1/2 rounded-lg transition-all",
           input.trim()
-            ? "bg-primary text-primary-foreground hover:bg-primary/90"
+            ? "bg-primary text-primary-foreground hover:bg-primary/90 rf-accent-glow"
             : "bg-muted text-muted-foreground",
           (isLoading || disabled) && "cursor-not-allowed opacity-50",
         )}

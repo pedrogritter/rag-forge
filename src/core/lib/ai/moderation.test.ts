@@ -115,6 +115,7 @@ describe("moderateContent (OpenAI API path)", () => {
 
     const consoleErrorSpy = jest
       .spyOn(console, "error")
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
       .mockImplementation(() => {});
 
     const { moderateContent: mod } = await import("./moderation");

@@ -62,7 +62,7 @@ export function TopBar() {
 
           {/* Logo and App Name */}
           <Link href="/" className="flex items-center gap-2 pl-2">
-            <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-md">
+            <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-md shadow-[0_0_8px_var(--rf-accent-subtle)]">
               <span className="text-primary-foreground text-[10px] font-black">
                 R
               </span>

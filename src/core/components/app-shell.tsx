@@ -31,7 +31,7 @@ export function AppShell({ children }: AppShellProps) {
         {/* Main Content Area */}
         <main
           className={cn(
-            "flex-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "rf-dots flex-1 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
             "md:ml-[52px]",
             isSidebarOpen && "md:ml-90",
           )}

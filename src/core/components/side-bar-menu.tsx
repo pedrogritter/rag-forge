@@ -184,7 +184,7 @@ export function SideBarMenu() {
                     className={cn(
                       "h-8 w-full justify-start overflow-hidden",
                       isActive
-                        ? "bg-accent/60 text-foreground"
+                        ? "bg-accent/60 text-foreground shadow-[inset_2px_0_0_var(--rf-accent)]"
                         : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
                       isSidebarOpen ? "px-3 pr-8" : "justify-center px-2",
                     )}

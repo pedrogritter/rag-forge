@@ -17,6 +17,7 @@ import { cn } from "@/core/lib/utils";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
 import { useSettingsStore } from "@/core/hooks/use-settings-store";
+import { useThemeConfigStore } from "@/core/hooks/use-theme-config";
 import { STATIC_TIPS } from "@/config/assistant.config";
 
 export default function Chat({
@@ -35,6 +36,8 @@ export default function Chat({
     provider: customProvider,
     model: customModel,
   } = useSettingsStore();
+
+  const { brandName } = useThemeConfigStore();
 
   const { messages, sendMessage, regenerate, status, error } = useChat({
     id,
@@ -95,11 +98,15 @@ export default function Chat({
             <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-6 pb-4">
               {messages.length === 0 && (
                 <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
-                  <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-xl">
-                    <MessageSquare className="text-primary h-6 w-6" />
+                  <div className="relative">
+                    {/* Radial glow behind icon */}
+                    <div className="absolute inset-0 -m-6 rounded-full bg-[radial-gradient(circle,var(--rf-accent-subtle)_0%,transparent_70%)]" />
+                    <div className="bg-primary/10 relative flex h-12 w-12 items-center justify-center rounded-xl">
+                      <MessageSquare className="text-primary h-6 w-6" />
+                    </div>
                   </div>
                   <div>
-                    <p className="font-semibold">Start a conversation</p>
+                    <p className="font-semibold">{brandName}</p>
                     <p className="text-muted-foreground mt-1 text-sm">
                       Ask anything about your knowledge base.
                     </p>
@@ -110,7 +117,7 @@ export default function Chat({
                         <button
                           key={suggestion}
                           type="button"
-                          className="border-border/50 bg-card/80 text-muted-foreground hover:bg-accent/50 hover:text-foreground inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-colors"
+                          className="border-border/50 bg-card/80 text-muted-foreground hover:border-[var(--rf-accent-muted)] hover:text-foreground inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-all hover:shadow-[0_0_12px_var(--rf-accent-subtle)]"
                           onClick={() => {
                             void sendMessage({ text: suggestion });
                           }}

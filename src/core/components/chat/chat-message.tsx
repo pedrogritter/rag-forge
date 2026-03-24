@@ -6,6 +6,7 @@ import { isToolUIPart, getToolName } from "ai";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/core/lib/utils";
 import {
   Avatar,
@@ -80,38 +81,48 @@ function ToolInvocationPart({ part }: { part: ToolPart }) {
             Found {sources.length} source{sources.length !== 1 ? "s" : ""}
           </span>
         </button>
-        {isExpanded && (
-          <div className="mt-2 space-y-2">
-            {sources.map((source, i) => {
-              const label = source.resourceName
-                ? source.pageNumber != null
-                  ? `${source.resourceName} — Page ${source.pageNumber}`
-                  : source.resourceName
-                : `Source ${i + 1}`;
+        <AnimatePresence>
+          {isExpanded && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="overflow-hidden"
+            >
+              <div className="mt-2 space-y-2">
+                {sources.map((source, i) => {
+                  const label = source.resourceName
+                    ? source.pageNumber != null
+                      ? `${source.resourceName} — Page ${source.pageNumber}`
+                      : source.resourceName
+                    : `Source ${i + 1}`;
 
-              return (
-                <div
-                  key={`source-${i}`}
-                  className="border-border/40 bg-muted/30 rounded-md border p-2 text-xs"
-                >
-                  <div className="text-muted-foreground mb-1 flex items-center justify-between font-medium">
-                    <span className="truncate" title={label}>
-                      {label}
-                    </span>
-                    {source.similarity != null && (
-                      <span className="text-muted-foreground/70 ml-2 shrink-0 tabular-nums">
-                        {(source.similarity * 100).toFixed(0)}% match
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-foreground/80 line-clamp-3">
-                    {source.content}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                  return (
+                    <div
+                      key={`source-${i}`}
+                      className="border-border/40 bg-muted/30 rounded-md border p-2 text-xs"
+                    >
+                      <div className="text-muted-foreground mb-1 flex items-center justify-between font-medium">
+                        <span className="truncate" title={label}>
+                          {label}
+                        </span>
+                        {source.similarity != null && (
+                          <span className="text-muted-foreground/70 ml-2 shrink-0 tabular-nums">
+                            {(source.similarity * 100).toFixed(0)}% match
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-foreground/80 line-clamp-3">
+                        {source.content}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     );
   }
@@ -146,13 +157,23 @@ function ReasoningPart({ text }: { text: string }) {
         <Brain className="h-3.5 w-3.5" />
         <span>Reasoning</span>
       </button>
-      {isExpanded && (
-        <div className="border-border/40 bg-muted/30 mt-2 rounded-md border p-3">
-          <pre className="text-muted-foreground overflow-x-auto font-mono text-xs leading-relaxed whitespace-pre-wrap">
-            {text}
-          </pre>
-        </div>
-      )}
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="border-border/40 bg-muted/30 mt-2 rounded-md border p-3">
+              <pre className="text-muted-foreground overflow-x-auto font-mono text-xs leading-relaxed whitespace-pre-wrap">
+                {text}
+              </pre>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -166,7 +187,10 @@ export function ChatMessage({ message }: ChatMessageProps) {
   const usersInitials = user?.firstName?.substring(0, 1);
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, ease: "easeOut" }}
       className={cn(
         "flex w-full gap-3",
         message.role === "user" ? "flex-row-reverse" : "flex-row",
@@ -238,6 +262,6 @@ export function ChatMessage({ message }: ChatMessageProps) {
           return null;
         })}
       </div>
-    </div>
+    </motion.div>
   );
 }
