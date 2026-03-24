@@ -1,7 +1,8 @@
 import { embed, embedMany } from "ai";
 import { db } from "@/server/db";
-import { cosineDistance, desc, gt, sql } from "drizzle-orm";
+import { cosineDistance, desc, gt, sql, eq } from "drizzle-orm";
 import { embeddings } from "@/server/db/schema/embeddings";
+import { pdfEmbeddings, pdfResources } from "@/server/db/schema/pdf-resources";
 import { vectorConfig } from "@/config/vector.config";
 import { getEmbeddingModel } from "@/core/lib/ai/providers";
 
@@ -47,7 +48,7 @@ export const findRelevantContent = async (userQuery: string) => {
   const userQueryEmbedded = await generateEmbedding(userQuery);
   const { search } = vectorConfig;
 
-  // Vector similarity search (cosine)
+  // Vector similarity search (cosine) with PDF metadata
   const vectorSimilarity = sql<number>`1 - (${cosineDistance(
     embeddings.embedding,
     userQueryEmbedded,
@@ -58,13 +59,18 @@ export const findRelevantContent = async (userQuery: string) => {
       id: embeddings.id,
       content: embeddings.content,
       score: vectorSimilarity,
+      filename: pdfResources.filename,
+      pageNumber: pdfEmbeddings.pageNumber,
+      pageTitle: pdfEmbeddings.pageTitle,
     })
     .from(embeddings)
+    .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
+    .leftJoin(pdfResources, eq(pdfResources.resourceId, embeddings.resourceId))
     .where(gt(vectorSimilarity, search.similarityThreshold))
     .orderBy(desc(vectorSimilarity))
     .limit(search.topK);
 
-  // Full-text keyword search (tsvector)
+  // Full-text keyword search (tsvector) with PDF metadata
   const tsQuery = sql`plainto_tsquery('english', ${userQuery})`;
   const textRank = sql<number>`ts_rank(${embeddings.searchVector}, ${tsQuery})`;
 
@@ -73,21 +79,38 @@ export const findRelevantContent = async (userQuery: string) => {
       id: embeddings.id,
       content: embeddings.content,
       score: textRank,
+      filename: pdfResources.filename,
+      pageNumber: pdfEmbeddings.pageNumber,
+      pageTitle: pdfEmbeddings.pageTitle,
     })
     .from(embeddings)
+    .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
+    .leftJoin(pdfResources, eq(pdfResources.resourceId, embeddings.resourceId))
     .where(sql`${embeddings.searchVector} @@ ${tsQuery}`)
     .orderBy(desc(textRank))
     .limit(search.topK);
 
   // Reciprocal Rank Fusion (RRF) to combine results
   const k = 60; // RRF constant
-  const scoreMap = new Map<string, { content: string; score: number }>();
+  const scoreMap = new Map<
+    string,
+    {
+      content: string;
+      score: number;
+      resourceName?: string;
+      pageNumber?: number;
+      pageTitle?: string;
+    }
+  >();
 
   vectorResults.forEach((result, rank) => {
     const rrfScore = search.vectorWeight / (k + rank + 1);
     scoreMap.set(result.id, {
       content: result.content,
       score: rrfScore,
+      resourceName: result.filename ?? undefined,
+      pageNumber: result.pageNumber ?? undefined,
+      pageTitle: result.pageTitle ?? undefined,
     });
   });
 
@@ -100,13 +123,22 @@ export const findRelevantContent = async (userQuery: string) => {
       scoreMap.set(result.id, {
         content: result.content,
         score: rrfScore,
+        resourceName: result.filename ?? undefined,
+        pageNumber: result.pageNumber ?? undefined,
+        pageTitle: result.pageTitle ?? undefined,
       });
     }
   });
 
-  // Sort by fused score and return top results with similarity for attribution
+  // Sort by fused score and return top results with metadata for attribution
   return Array.from(scoreMap.values())
     .sort((a, b) => b.score - a.score)
     .slice(0, search.topK)
-    .map(({ content, score }) => ({ content, similarity: score }));
+    .map(({ content, score, resourceName, pageNumber, pageTitle }) => ({
+      content,
+      similarity: score,
+      resourceName,
+      pageNumber,
+      pageTitle,
+    }));
 };

@@ -24,6 +24,9 @@ import {
 interface SourceChunk {
   content: string;
   similarity?: number;
+  resourceName?: string;
+  pageNumber?: number;
+  pageTitle?: string;
 }
 
 type ToolPart = Extract<UIMessage["parts"][number], { toolCallId: string }>;
@@ -78,24 +81,34 @@ function ToolInvocationPart({ part }: { part: ToolPart }) {
         </button>
         {isExpanded && (
           <div className="mt-2 space-y-2">
-            {sources.map((source, i) => (
-              <div
-                key={`source-${i}`}
-                className="border-border/40 bg-muted/30 rounded-md border p-2 text-xs"
-              >
-                <div className="text-muted-foreground mb-1 flex items-center justify-between font-medium">
-                  <span>Source {i + 1}</span>
-                  {source.similarity != null && (
-                    <span className="text-muted-foreground/70 tabular-nums">
-                      {(source.similarity * 100).toFixed(0)}% match
+            {sources.map((source, i) => {
+              const label = source.resourceName
+                ? source.pageNumber != null
+                  ? `${source.resourceName} — Page ${source.pageNumber}`
+                  : source.resourceName
+                : `Source ${i + 1}`;
+
+              return (
+                <div
+                  key={`source-${i}`}
+                  className="border-border/40 bg-muted/30 rounded-md border p-2 text-xs"
+                >
+                  <div className="text-muted-foreground mb-1 flex items-center justify-between font-medium">
+                    <span className="truncate" title={label}>
+                      {label}
                     </span>
-                  )}
+                    {source.similarity != null && (
+                      <span className="text-muted-foreground/70 ml-2 shrink-0 tabular-nums">
+                        {(source.similarity * 100).toFixed(0)}% match
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-foreground/80 line-clamp-3">
+                    {source.content}
+                  </p>
                 </div>
-                <p className="text-foreground/80 line-clamp-3">
-                  {source.content}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
