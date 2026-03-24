@@ -1,6 +1,7 @@
 import { POST } from "./route";
 import type { NextRequest } from "next/server";
 import { streamText } from "ai";
+import { rateLimit } from "@/core/lib/rate-limit";
 
 // Mock dependencies
 jest.mock("@/core/lib/actions/resources", () => ({
@@ -148,5 +149,23 @@ describe("/api/chat POST", () => {
     } as unknown as NextRequest;
     await POST(req);
     expect(mockToUIMessageStreamResponse).toHaveBeenCalled();
+  });
+
+  it("returns 429 when rate limited", async () => {
+    const mockedRateLimit = rateLimit as jest.MockedFunction<typeof rateLimit>;
+    mockedRateLimit.mockReturnValueOnce({
+      allowed: false,
+      retryAfterMs: 30_000,
+    });
+    const req = {
+      headers: mockHeaders,
+      json: async () => ({}),
+    } as unknown as NextRequest;
+    const res = await POST(req);
+    expect(res.status).toBe(429);
+    expect(res.headers.get("Retry-After")).toBe("30");
+    const data = (await res.json()) as { error: boolean; message: string };
+    expect(data.error).toBe(true);
+    expect(data.message).toMatch(/Too many requests/);
   });
 });
