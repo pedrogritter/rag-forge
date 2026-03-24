@@ -148,7 +148,7 @@ export default function Home() {
 
             <FadeIn delay={0.1}>
               <h1 className="text-5xl font-black tracking-tighter sm:text-7xl lg:text-8xl">
-                Forge AI Agents
+                Forge Knowledge Assistants
                 <br />
                 <span className="bg-gradient-to-r from-[var(--rf-accent)] to-[var(--rf-accent-hover)] bg-clip-text text-transparent">
                   From Real Knowledge
@@ -220,7 +220,7 @@ export default function Home() {
                 <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
                   Everything you need to build
                   <br className="hidden sm:block" />
-                  expert AI agents
+                  expert knowledge assistants
                 </h2>
                 <p className="text-muted-foreground mx-auto mt-4 max-w-2xl">
                   A complete toolkit from document ingestion to production-ready
@@ -422,7 +422,8 @@ export default function Home() {
             <FadeIn>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
                 Ready to forge{" "}
-                <span className="text-[var(--rf-accent)]">your</span> AI agent?
+                <span className="text-[var(--rf-accent)]">your</span> knowledge
+                assistant?
               </h2>
               <p className="text-muted-foreground mx-auto mt-4 max-w-xl text-lg">
                 Clone the repo, index your knowledge, and deploy a

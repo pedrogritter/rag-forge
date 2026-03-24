@@ -72,8 +72,8 @@ pnpm dev              # http://localhost:3000
 
 All configuration lives in `src/config/`:
 
-### Agent (`agent.config.ts`)
-System prompt defining your agent's personality and domain expertise.
+### Assistant (`assistant.config.ts`)
+System prompt defining your assistant's personality and domain expertise.
 
 ### Model (`model.config.ts`)
 ```ts
@@ -120,7 +120,7 @@ src/
 │       ├── chat/           # Streaming RAG endpoint
 │       ├── documents/      # File upload endpoint
 │       └── trpc/           # tRPC handler
-├── config/                 # Agent, model, theme, vector config
+├── config/                 # Assistant, model, theme, vector config
 ├── core/
 │   ├── components/         # App shell, chat UI, landing, Shadcn primitives
 │   ├── hooks/              # Zustand stores (sidebar, theme)
@@ -154,7 +154,7 @@ src/
 
 ## Use Cases
 
-RAGForge is designed as a cloneable template. Example agents:
+RAGForge is designed as a cloneable template. Example knowledge assistants:
 
 - **MotoMind** — Motorcycle mechanic using service manuals
 - **FreediveCoach** — Freediving training from sports literature

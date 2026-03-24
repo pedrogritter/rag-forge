@@ -12,7 +12,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 export const metadata: Metadata = {
   title: "RAG Forge",
   description:
-    "A customizable, open-source template for building AI RAG agents",
+    "A customizable, open-source template for building AI knowledge assistants",
   icons: [{ rel: "icon", url: "/iron.png" }],
 };
 

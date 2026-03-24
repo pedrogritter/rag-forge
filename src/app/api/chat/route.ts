@@ -1,4 +1,4 @@
-import { agentConfig, modelConfig } from "@/config";
+import { assistantConfig, modelConfig } from "@/config";
 import { createResource } from "@/core/lib/actions/resources";
 import { findRelevantContent } from "@/core/lib/ai/embedding";
 import { getChatModel } from "@/core/lib/ai/providers";
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
         model: getChatModel(),
         messages: modelMessages,
         temperature: modelConfig.temperature,
-        system: agentConfig.systemPrompt,
+        system: assistantConfig.systemPrompt,
         tools,
         stopWhen: stepCountIs(3),
       });

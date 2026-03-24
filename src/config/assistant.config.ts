@@ -1,4 +1,4 @@
-export const agentConfig = {
+export const assistantConfig = {
   // id: 'motomind',
   // name: 'MotoMind',
   // description: 'Your expert motorcycle mechanic AI.',
