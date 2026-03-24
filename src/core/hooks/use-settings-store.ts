@@ -15,10 +15,8 @@ export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
       suggestionsEnabled: modelConfig.suggestionsEnabled,
-      setSuggestionsEnabled: (enabled) =>
-        set({ suggestionsEnabled: enabled }),
-      reset: () =>
-        set({ suggestionsEnabled: modelConfig.suggestionsEnabled }),
+      setSuggestionsEnabled: (enabled) => set({ suggestionsEnabled: enabled }),
+      reset: () => set({ suggestionsEnabled: modelConfig.suggestionsEnabled }),
     }),
     { name: "ragforge-settings" },
   ),

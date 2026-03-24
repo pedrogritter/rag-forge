@@ -14,7 +14,10 @@ const CACHE_TTL_MS = 5 * 60 * 1000;
 /** Extract a JSON array from LLM text that may be wrapped in markdown fences. */
 function extractJsonArray(text: string): string[] | null {
   // Strip markdown code fences if present
-  const stripped = text.replace(/```(?:json)?\s*/g, "").replace(/```/g, "").trim();
+  const stripped = text
+    .replace(/```(?:json)?\s*/g, "")
+    .replace(/```/g, "")
+    .trim();
   try {
     const parsed = z.array(z.string()).parse(JSON.parse(stripped));
     return parsed.slice(0, 4);
