@@ -83,9 +83,12 @@ export function SideBarMenu() {
   });
 
   const deleteChat = api.chats.delete.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       void utils.chats.list.invalidate();
       toast.success("Chat deleted");
+      if (pathname === `/dashboard/c/${variables.id}`) {
+        router.push("/dashboard");
+      }
     },
     onError: () => {
       toast.error("Failed to delete chat");
@@ -180,13 +183,13 @@ export function SideBarMenu() {
                   {isSidebarOpen && (
                     <button
                       type="button"
-                      className="text-muted-foreground/50 hover:text-destructive absolute top-1/2 right-1.5 hidden -translate-y-1/2 cursor-pointer rounded p-0.5 transition-colors group-hover:block"
+                      className="text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 absolute top-1/2 right-1.5 hidden -translate-y-1/2 cursor-pointer rounded-md p-1 transition-colors group-hover:block"
                       onClick={(e) => {
                         e.preventDefault();
                         deleteChat.mutate({ id: chat.id });
                       }}
                     >
-                      <Trash2 className="h-3 w-3" />
+                      <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>

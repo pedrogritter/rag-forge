@@ -12,9 +12,10 @@ import {
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Sparkles } from "lucide-react";
 import { cn } from "@/core/lib/utils";
 import { toast } from "sonner";
+import { api } from "@/trpc/react";
 
 export default function Chat({
   id,
@@ -47,6 +48,10 @@ export default function Chat({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, status]);
 
+  const { data: suggestions } = api.resources.sampleTopics.useQuery(undefined, {
+    enabled: messages.length === 0,
+  });
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
@@ -54,7 +59,7 @@ export default function Chat({
     setInput("");
   };
 
-  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
   };
 
@@ -77,6 +82,23 @@ export default function Chat({
                       Ask anything about your knowledge base.
                     </p>
                   </div>
+                  {suggestions && suggestions.length > 0 && (
+                    <div className="mt-4 flex max-w-md flex-wrap justify-center gap-2">
+                      {suggestions.map((suggestion) => (
+                        <button
+                          key={suggestion}
+                          type="button"
+                          className="border-border/50 bg-card/80 text-muted-foreground hover:bg-accent/50 hover:text-foreground inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-colors"
+                          onClick={() => {
+                            void sendMessage({ text: suggestion });
+                          }}
+                        >
+                          <Sparkles className="h-3 w-3 shrink-0 opacity-60" />
+                          <span className="truncate">{suggestion}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               {messages.map((message) => (
