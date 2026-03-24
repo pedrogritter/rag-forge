@@ -19,18 +19,23 @@ const chatProviders = {
 export type ChatProvider = keyof typeof chatProviders;
 
 /**
- * Returns the language model configured in `modelConfig`.
- * Resolves provider + model from config into an AI SDK language model instance.
+ * Returns the language model configured in `modelConfig`,
+ * or uses overrides when provided (e.g. from user settings).
  */
-export function getChatModel() {
-  const provider = chatProviders[modelConfig.provider];
+export function getChatModel(
+  providerOverride?: string,
+  modelOverride?: string,
+) {
+  const providerKey = (providerOverride ?? modelConfig.provider) as ChatProvider;
+  const modelId = modelOverride ?? modelConfig.model;
+  const provider = chatProviders[providerKey];
   if (!provider) {
     throw new Error(
-      `Unsupported chat provider "${modelConfig.provider}". ` +
+      `Unsupported chat provider "${providerKey}". ` +
         `Supported: ${Object.keys(chatProviders).join(", ")}`,
     );
   }
-  return provider(modelConfig.model);
+  return provider(modelId);
 }
 
 /**

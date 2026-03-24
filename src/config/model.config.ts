@@ -11,6 +11,8 @@ export const modelConfig = {
     useGetInfoTool: true,
     useStoreRelevantTool: true,
   },
+  /** Max output tokens per response. Controls cost and response length. */
+  maxTokens: 2048,
   /** When true, generates LLM-powered suggestion chips from your knowledge base.
    *  When false (default), shows static tip prompts — no extra tokens used. */
   suggestionsEnabled: false,
