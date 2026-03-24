@@ -3,10 +3,7 @@ import { NextResponse } from "next/server";
 /** Common models per provider for the settings UI. */
 const providerModels: Record<string, string[]> = {
   openai: ["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1-nano", "o4-mini"],
-  anthropic: [
-    "claude-sonnet-4-20250514",
-    "claude-haiku-4-20250414",
-  ],
+  anthropic: ["claude-sonnet-4-20250514", "claude-haiku-4-20250414"],
   google: ["gemini-2.5-flash-preview-05-20", "gemini-2.0-flash"],
 };
 

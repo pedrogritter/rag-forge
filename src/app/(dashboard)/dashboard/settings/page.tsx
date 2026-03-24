@@ -77,8 +77,9 @@ export default function SettingsPage() {
       });
   }, []);
 
-  const activeProvider =
-    availableProviders.find((p) => p.name === (provider || modelConfig.provider));
+  const activeProvider = availableProviders.find(
+    (p) => p.name === (provider || modelConfig.provider),
+  );
   const modelOptions = activeProvider?.models ?? [];
 
   const handleBrandSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -268,7 +269,7 @@ export default function SettingsPage() {
             placeholder={assistantConfig.systemPrompt}
             rows={5}
             maxLength={2000}
-            className="border-border/50 bg-background/50 text-foreground placeholder:text-muted-foreground/50 w-full resize-y rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+            className="border-border/50 bg-background/50 text-foreground placeholder:text-muted-foreground/50 focus:ring-primary/50 w-full resize-y rounded-md border px-3 py-2 text-sm focus:ring-1 focus:outline-none"
           />
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground/60 text-xs tabular-nums">
@@ -313,7 +314,7 @@ export default function SettingsPage() {
               step="0.1"
               value={temperature >= 0 ? temperature : modelConfig.temperature}
               onChange={(e) => setTemperature(parseFloat(e.target.value))}
-              className="h-2 flex-1 cursor-pointer accent-primary"
+              className="accent-primary h-2 flex-1 cursor-pointer"
             />
             <span className="text-foreground w-10 text-right text-sm font-medium tabular-nums">
               {temperature >= 0
@@ -393,8 +394,7 @@ export default function SettingsPage() {
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {modelOptions.map((m) => {
-                    const isActive =
-                      m === (model || modelConfig.model);
+                    const isActive = m === (model || modelConfig.model);
                     return (
                       <button
                         key={m}

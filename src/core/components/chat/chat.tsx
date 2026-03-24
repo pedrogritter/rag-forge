@@ -48,8 +48,7 @@ export default function Chat({
             message: messages[messages.length - 1],
             id,
             systemPrompt: customSystemPrompt || undefined,
-            temperature:
-              customTemperature >= 0 ? customTemperature : undefined,
+            temperature: customTemperature >= 0 ? customTemperature : undefined,
             provider: customProvider || undefined,
             model: customModel || undefined,
           },

@@ -121,8 +121,7 @@ export async function POST(req: NextRequest) {
         : undefined;
     const customProvider =
       typeof body.provider === "string" ? body.provider : undefined;
-    const customModel =
-      typeof body.model === "string" ? body.model : undefined;
+    const customModel = typeof body.model === "string" ? body.model : undefined;
 
     // Load previous messages from DB and append the new message
     const previousMessages = await loadChat(chatId);

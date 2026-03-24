@@ -26,7 +26,8 @@ export function getChatModel(
   providerOverride?: string,
   modelOverride?: string,
 ) {
-  const providerKey = (providerOverride ?? modelConfig.provider) as ChatProvider;
+  const providerKey = (providerOverride ??
+    modelConfig.provider) as ChatProvider;
   const modelId = modelOverride ?? modelConfig.model;
   const provider = chatProviders[providerKey];
   if (!provider) {

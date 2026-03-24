@@ -32,8 +32,7 @@ export const useSettingsStore = create<SettingsState>()(
       provider: "",
       model: "",
       setSuggestionsEnabled: (enabled) => set({ suggestionsEnabled: enabled }),
-      setSystemPrompt: (prompt) =>
-        set({ systemPrompt: prompt.slice(0, 2000) }),
+      setSystemPrompt: (prompt) => set({ systemPrompt: prompt.slice(0, 2000) }),
       setTemperature: (temp) => set({ temperature: temp }),
       setProvider: (provider) => set({ provider }),
       setModel: (model) => set({ model }),
