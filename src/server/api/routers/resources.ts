@@ -5,17 +5,11 @@ import { generateText } from "ai";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { embeddings } from "@/server/db/schema";
 import { getChatModel } from "@/core/lib/ai/providers";
+import { STATIC_TIPS } from "@/config/assistant.config";
 
 // Simple in-memory cache for topic suggestions (5-minute TTL)
 let cachedTopics: { data: string[]; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 5 * 60 * 1000;
-
-export const STATIC_TIPS = [
-  "What topics are in my knowledge base?",
-  "Summarize the key concepts you know about",
-  "What questions can you help me with?",
-  "Upload a PDF to get started",
-];
 
 /** Extract a JSON array from LLM text that may be wrapped in markdown fences. */
 function extractJsonArray(text: string): string[] | null {

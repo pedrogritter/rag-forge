@@ -17,7 +17,7 @@ import { cn } from "@/core/lib/utils";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
 import { useSettingsStore } from "@/core/hooks/use-settings-store";
-import { STATIC_TIPS } from "@/server/api/routers/resources";
+import { STATIC_TIPS } from "@/config/assistant.config";
 
 export default function Chat({
   id,

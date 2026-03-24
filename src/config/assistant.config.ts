@@ -1,3 +1,10 @@
+export const STATIC_TIPS = [
+  "What topics are in my knowledge base?",
+  "Summarize the key concepts you know about",
+  "What questions can you help me with?",
+  "Upload a PDF to get started",
+];
+
 export const assistantConfig = {
   // id: 'motomind',
   // name: 'MotoMind',
