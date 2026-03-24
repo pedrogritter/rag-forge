@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { Button } from "@/core/components/ui/button";
 import {
   Card,
@@ -14,15 +14,30 @@ import { Separator } from "@/core/components/ui/separator";
 import { useThemeConfigStore } from "@/core/hooks/use-theme-config";
 import { useSettingsStore } from "@/core/hooks/use-settings-store";
 import { colorPresets, colorPresetKeys } from "@/config/theme-presets";
+import { assistantConfig } from "@/config/assistant.config";
+import { modelConfig } from "@/config/model.config";
 import type { FontFamily } from "@/config/theme.config";
 import { cn } from "@/core/lib/utils";
-import { Check, RotateCcw, Type, Sparkles } from "lucide-react";
+import {
+  Check,
+  RotateCcw,
+  Type,
+  Sparkles,
+  MessageSquareText,
+  Thermometer,
+  Cpu,
+} from "lucide-react";
 import { toast } from "sonner";
 
 const fontOptions: { value: FontFamily; label: string; sample: string }[] = [
   { value: "geist", label: "Geist Sans", sample: "font-sans" },
   { value: "system", label: "System UI", sample: "font-sans" },
 ];
+
+interface ProviderInfo {
+  name: string;
+  models: string[];
+}
 
 export default function SettingsPage() {
   const {
@@ -38,8 +53,33 @@ export default function SettingsPage() {
   const {
     suggestionsEnabled,
     setSuggestionsEnabled,
+    systemPrompt,
+    setSystemPrompt,
+    temperature,
+    setTemperature,
+    provider,
+    setProvider,
+    model,
+    setModel,
     reset: resetSettings,
   } = useSettingsStore();
+
+  const [availableProviders, setAvailableProviders] = useState<ProviderInfo[]>(
+    [],
+  );
+
+  useEffect(() => {
+    void fetch("/api/settings/providers")
+      .then((r) => r.json() as Promise<ProviderInfo[]>)
+      .then(setAvailableProviders)
+      .catch(() => {
+        // Best-effort — providers list will remain empty
+      });
+  }, []);
+
+  const activeProvider =
+    availableProviders.find((p) => p.name === (provider || modelConfig.provider));
+  const modelOptions = activeProvider?.models ?? [];
 
   const handleBrandSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -209,7 +249,177 @@ export default function SettingsPage() {
 
       <Separator className="opacity-50" />
 
-      {/* ── Reset ── */}
+      {/* ── System Prompt ── */}
+      <Card className="border-border/50 bg-card/80">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <MessageSquareText className="h-4 w-4" />
+            System Prompt
+          </CardTitle>
+          <CardDescription>
+            Override the default assistant instructions. Leave empty to use the
+            built-in prompt. Max 2000 characters.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <textarea
+            value={systemPrompt}
+            onChange={(e) => setSystemPrompt(e.target.value)}
+            placeholder={assistantConfig.systemPrompt}
+            rows={5}
+            maxLength={2000}
+            className="border-border/50 bg-background/50 text-foreground placeholder:text-muted-foreground/50 w-full resize-y rounded-md border px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+          />
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground/60 text-xs tabular-nums">
+              {systemPrompt.length} / 2000
+            </span>
+            {systemPrompt && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground h-7 text-xs"
+                onClick={() => {
+                  setSystemPrompt("");
+                  toast.success("System prompt reset to default");
+                }}
+              >
+                Reset to default
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Temperature ── */}
+      <Card className="border-border/50 bg-card/80">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Thermometer className="h-4 w-4" />
+            Model Temperature
+          </CardTitle>
+          <CardDescription>
+            Controls randomness. Lower values (0.0) are more deterministic,
+            higher values (1.0) are more creative. Default:{" "}
+            {modelConfig.temperature}.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              value={temperature >= 0 ? temperature : modelConfig.temperature}
+              onChange={(e) => setTemperature(parseFloat(e.target.value))}
+              className="h-2 flex-1 cursor-pointer accent-primary"
+            />
+            <span className="text-foreground w-10 text-right text-sm font-medium tabular-nums">
+              {temperature >= 0
+                ? temperature.toFixed(1)
+                : `${modelConfig.temperature.toFixed(1)}`}
+            </span>
+            {temperature >= 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground h-7 text-xs"
+                onClick={() => {
+                  setTemperature(-1);
+                  toast.success("Temperature reset to default");
+                }}
+              >
+                Reset
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* ── Provider & Model ── */}
+      <Card className="border-border/50 bg-card/80">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Cpu className="h-4 w-4" />
+            Model &amp; Provider
+          </CardTitle>
+          <CardDescription>
+            Select the AI provider and model. Only providers with configured API
+            keys are shown.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {availableProviders.length === 0 ? (
+            <p className="text-muted-foreground text-sm">
+              Loading providers...
+            </p>
+          ) : (
+            <>
+              <div className="space-y-1.5">
+                <label className="text-muted-foreground text-xs font-medium">
+                  Provider
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {availableProviders.map((p) => {
+                    const isActive =
+                      p.name === (provider || modelConfig.provider);
+                    return (
+                      <button
+                        key={p.name}
+                        type="button"
+                        onClick={() => {
+                          setProvider(p.name);
+                          // Reset model when switching provider
+                          setModel(p.models[0] ?? "");
+                        }}
+                        className={cn(
+                          "flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition-all",
+                          isActive
+                            ? "border-primary/50 bg-primary/10 text-primary"
+                            : "border-border/50 text-muted-foreground hover:border-border hover:bg-accent/30 hover:text-foreground",
+                        )}
+                      >
+                        <span className="text-xs capitalize">{p.name}</span>
+                        {isActive && <Check className="h-3 w-3" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-muted-foreground text-xs font-medium">
+                  Model
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {modelOptions.map((m) => {
+                    const isActive =
+                      m === (model || modelConfig.model);
+                    return (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setModel(m)}
+                        className={cn(
+                          "flex h-9 items-center gap-2 rounded-lg border px-3 text-sm font-medium transition-all",
+                          isActive
+                            ? "border-primary/50 bg-primary/10 text-primary"
+                            : "border-border/50 text-muted-foreground hover:border-border hover:bg-accent/30 hover:text-foreground",
+                        )}
+                      >
+                        <span className="font-mono text-xs">{m}</span>
+                        {isActive && <Check className="h-3 w-3" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Separator className="opacity-50" />
       <div className="flex justify-end">
         <Button
           variant="outline"
