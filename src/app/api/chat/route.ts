@@ -211,6 +211,17 @@ export async function POST(req: NextRequest) {
 
     const modelMessages = await convertToModelMessages(messages);
 
+    // Enable reasoning/thinking for Anthropic models that support it
+    const resolvedProvider = customProvider ?? modelConfig.provider;
+    const providerOptions =
+      resolvedProvider === "anthropic"
+        ? {
+            anthropic: {
+              thinking: { type: "enabled" as const, budgetTokens: 1024 },
+            },
+          }
+        : undefined;
+
     let result;
     try {
       result = streamText({
@@ -220,6 +231,7 @@ export async function POST(req: NextRequest) {
         maxOutputTokens: modelConfig.maxTokens ?? 2048,
         system: customSystemPrompt || assistantConfig.systemPrompt,
         tools,
+        providerOptions,
         stopWhen: stepCountIs(3),
       });
     } catch (llmErr) {

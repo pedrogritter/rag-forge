@@ -14,6 +14,7 @@ import {
 } from "@/core/components/ui/avatar";
 import { useUser } from "@clerk/nextjs";
 import {
+  Brain,
   ChevronDown,
   ChevronRight,
   Search,
@@ -127,6 +128,35 @@ function ToolInvocationPart({ part }: { part: ToolPart }) {
   return null;
 }
 
+function ReasoningPart({ text }: { text: string }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <div className="py-1">
+      <button
+        type="button"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="text-muted-foreground hover:text-foreground flex cursor-pointer items-center gap-1.5 text-xs transition-colors"
+      >
+        {isExpanded ? (
+          <ChevronDown className="h-3.5 w-3.5" />
+        ) : (
+          <ChevronRight className="h-3.5 w-3.5" />
+        )}
+        <Brain className="h-3.5 w-3.5" />
+        <span>Reasoning</span>
+      </button>
+      {isExpanded && (
+        <div className="border-border/40 bg-muted/30 mt-2 rounded-md border p-3">
+          <pre className="text-muted-foreground overflow-x-auto font-mono text-xs leading-relaxed whitespace-pre-wrap">
+            {text}
+          </pre>
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ChatMessageProps {
   message: UIMessage;
 }
@@ -192,6 +222,12 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   {part.text}
                 </ReactMarkdown>
               </div>
+            );
+          }
+
+          if (part.type === "reasoning" && part.text.length > 0) {
+            return (
+              <ReasoningPart key={`reasoning-${index}`} text={part.text} />
             );
           }
 

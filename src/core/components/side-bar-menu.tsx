@@ -14,6 +14,7 @@ import {
   Plus,
   Trash2,
   Database,
+  HelpCircle,
 } from "lucide-react";
 import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 import { cn } from "@/core/lib/utils";
@@ -34,6 +35,7 @@ const mainNavItems: NavItem[] = [
 ];
 
 const secondaryNavItems: NavItem[] = [
+  { href: "/dashboard/faq", label: "Help & FAQ", icon: HelpCircle },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
 
