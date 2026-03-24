@@ -28,6 +28,14 @@ export default function Chat({
   initialMessages?: UIMessage[];
   className?: string;
 }) {
+  const {
+    suggestionsEnabled,
+    systemPrompt: customSystemPrompt,
+    temperature: customTemperature,
+    provider: customProvider,
+    model: customModel,
+  } = useSettingsStore();
+
   const { messages, sendMessage, regenerate, status, error } = useChat({
     id,
     messages: initialMessages,
@@ -35,7 +43,17 @@ export default function Chat({
       api: "/api/chat",
       // Send only the last message — server loads previous from DB
       prepareSendMessagesRequest({ messages, id }) {
-        return { body: { message: messages[messages.length - 1], id } };
+        return {
+          body: {
+            message: messages[messages.length - 1],
+            id,
+            systemPrompt: customSystemPrompt || undefined,
+            temperature:
+              customTemperature >= 0 ? customTemperature : undefined,
+            provider: customProvider || undefined,
+            model: customModel || undefined,
+          },
+        };
       },
     }),
     onError: (err) => {
@@ -49,8 +67,6 @@ export default function Chat({
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, status]);
-
-  const { suggestionsEnabled } = useSettingsStore();
 
   const { data: dynamicSuggestions } = api.resources.sampleTopics.useQuery(
     undefined,

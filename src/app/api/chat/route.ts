@@ -76,9 +76,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let body: { message?: unknown; id?: unknown };
+    let body: {
+      message?: unknown;
+      id?: unknown;
+      systemPrompt?: unknown;
+      temperature?: unknown;
+      provider?: unknown;
+      model?: unknown;
+    };
     try {
-      body = (await req.json()) as { message?: unknown; id?: unknown };
+      body = (await req.json()) as typeof body;
     } catch (jsonErr) {
       console.error("Invalid JSON in request:", jsonErr);
       return NextResponse.json(
@@ -100,6 +107,22 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
     }
+
+    // Extract optional client-side overrides
+    const customSystemPrompt =
+      typeof body.systemPrompt === "string"
+        ? body.systemPrompt.slice(0, 2000)
+        : "";
+    const customTemperature =
+      typeof body.temperature === "number" &&
+      body.temperature >= 0 &&
+      body.temperature <= 1
+        ? body.temperature
+        : undefined;
+    const customProvider =
+      typeof body.provider === "string" ? body.provider : undefined;
+    const customModel =
+      typeof body.model === "string" ? body.model : undefined;
 
     // Load previous messages from DB and append the new message
     const previousMessages = await loadChat(chatId);
@@ -137,10 +160,11 @@ export async function POST(req: NextRequest) {
     let result;
     try {
       result = streamText({
-        model: getChatModel(),
+        model: getChatModel(customProvider, customModel),
         messages: modelMessages,
-        temperature: modelConfig.temperature,
-        system: assistantConfig.systemPrompt,
+        temperature: customTemperature ?? modelConfig.temperature,
+        maxOutputTokens: modelConfig.maxTokens ?? 2048,
+        system: customSystemPrompt || assistantConfig.systemPrompt,
         tools,
         stopWhen: stepCountIs(3),
       });
