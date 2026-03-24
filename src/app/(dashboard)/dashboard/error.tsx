@@ -17,10 +17,10 @@ export default function DashboardError({
   }, [error]);
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+    <div className="flex h-[calc(100vh-3rem)] items-center justify-center p-4">
+      <Card className="border-border/50 bg-card/80 w-full max-w-md">
         <CardContent className="flex flex-col items-center gap-4 pt-6 text-center">
-          <div className="bg-destructive/10 rounded-full p-3">
+          <div className="bg-destructive/10 rounded-xl p-3">
             <AlertTriangle className="text-destructive h-6 w-6" />
           </div>
           <div>
@@ -34,7 +34,11 @@ export default function DashboardError({
               </p>
             )}
           </div>
-          <Button onClick={() => reset()} variant="outline">
+          <Button
+            onClick={() => reset()}
+            variant="outline"
+            className="border-border/50"
+          >
             Try again
           </Button>
         </CardContent>

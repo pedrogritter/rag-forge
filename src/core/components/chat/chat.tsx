@@ -12,7 +12,7 @@ import {
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
-import { Loader2 } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import { cn } from "@/core/lib/utils";
 import { toast } from "sonner";
 
@@ -60,18 +60,35 @@ export default function Chat({
 
   return (
     <div
-      className={cn("relative flex h-[calc(100vh-3.5rem)] flex-col", className)}
+      className={cn("relative flex h-[calc(100vh-3rem)] flex-col", className)}
     >
       <div className="absolute inset-0 flex flex-col">
         <div className="relative flex-1">
           <ScrollArea className="absolute inset-0">
-            <div className="flex flex-col gap-4 p-4">
+            <div className="mx-auto flex max-w-2xl flex-col gap-5 px-4 py-6 pb-4">
+              {messages.length === 0 && (
+                <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-center">
+                  <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-xl">
+                    <MessageSquare className="text-primary h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="font-semibold">Start a conversation</p>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      Ask anything about your knowledge base.
+                    </p>
+                  </div>
+                </div>
+              )}
               {messages.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
               {status === "submitted" && (
-                <div className="text-muted-foreground flex items-center gap-2 px-1 text-sm italic">
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                <div className="text-muted-foreground flex items-center gap-2.5 px-1 text-sm">
+                  <div className="flex gap-1">
+                    <span className="bg-primary h-1.5 w-1.5 animate-pulse rounded-full" />
+                    <span className="bg-primary h-1.5 w-1.5 animate-pulse rounded-full [animation-delay:150ms]" />
+                    <span className="bg-primary h-1.5 w-1.5 animate-pulse rounded-full [animation-delay:300ms]" />
+                  </div>
                   Thinking...
                 </div>
               )}
@@ -79,8 +96,8 @@ export default function Chat({
             </div>
           </ScrollArea>
         </div>
-        <div className="bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky bottom-0 border-t backdrop-blur">
-          <div className="p-4">
+        <div className="border-border/50 bg-background/80 supports-[backdrop-filter]:bg-background/60 border-t shadow-[0_-1px_12px_oklch(0_0_0/8%)] backdrop-blur-xl">
+          <div className="mx-auto max-w-2xl px-4 py-3">
             <ChatInput
               input={input}
               isLoading={status === "submitted" || status === "streaming"}

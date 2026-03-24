@@ -23,53 +23,69 @@ export function TopBar() {
   };
 
   return (
-    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
-      <div className="flex h-12 w-full flex-row items-center justify-between px-2">
-        {/* Sidebar Toggle Button (Desktop) */}
-        {isSignedIn && (
+    <header className="border-border/50 bg-background/80 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur-xl">
+      <div className="flex h-12 w-full items-center justify-between px-3">
+        <div className="flex items-center">
+          {/* Sidebar Toggle Button (Desktop) */}
+          {isSignedIn && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="text-muted-foreground hover:text-foreground mr-1 hidden h-8 w-8 md:inline-flex"
+              aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            >
+              {isSidebarOpen ? (
+                <PanelLeftClose className="h-4 w-4" />
+              ) : (
+                <PanelLeftOpen className="h-4 w-4" />
+              )}
+            </Button>
+          )}
+
+          {/* Sidebar Menu Trigger (Mobile) */}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mr-1 h-8 w-8 md:hidden"
+              >
+                <Menu className="h-4 w-4" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-60 p-0">
+              <SideBarMenu />
+            </SheetContent>
+          </Sheet>
+
+          {/* Logo and App Name */}
+          <Link href="/" className="flex items-center gap-2 pl-2">
+            <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-md">
+              <span className="text-primary-foreground text-[10px] font-black">
+                R
+              </span>
+            </div>
+            <span className="text-sm font-semibold tracking-tight">
+              {brandName}
+            </span>
+          </Link>
+        </div>
+
+        {/* Right side */}
+        <div className="flex items-center gap-1">
+          {/* Theme Toggle */}
           <Button
             variant="ghost"
             size="icon"
-            onClick={toggleSidebar}
-            className="mr-2 hidden md:inline-flex"
-            aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            onClick={toggleTheme}
+            className="text-muted-foreground hover:text-foreground h-8 w-8"
           >
-            {isSidebarOpen ? (
-              <PanelLeftClose className="h-5 w-5 transition-transform duration-300 ease-in-out" />
-            ) : (
-              <PanelLeftOpen className="h-5 w-5 transition-transform duration-300 ease-in-out" />
-            )}
-          </Button>
-        )}
-
-        {/* Sidebar Menu Trigger (Mobile) */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="ghost" size="icon" className="mr-2 md:hidden">
-              <Menu className="h-5 w-5" />
-              <span className="sr-only">Toggle Menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="pr-0">
-            <SideBarMenu />
-          </SheetContent>
-        </Sheet>
-
-        {/* Logo and App Name */}
-        <Link href="/" className="mr-6 flex items-center space-x-2 pl-4">
-          {/* Placeholder for a real logo */}
-          {/* <Icons.logo className="h-6 w-6" /> Replace with actual logo icon */}
-          <span className="font-bold sm:inline-block">{brandName}</span>
-        </Link>
-
-        {/* Spacer */}
-        <div className="flex flex-1 items-center justify-end space-x-2 pr-4">
-          {/* Theme Toggle */}
-          <Button variant="ghost" size="icon" onClick={toggleTheme}>
             {theme === "light" ? (
-              <Sun className="h-[1.2rem] w-[1.2rem]" />
+              <Sun className="h-4 w-4" />
             ) : (
-              <Moon className="h-[1.2rem] w-[1.2rem]" />
+              <Moon className="h-4 w-4" />
             )}
             <span className="sr-only">Toggle theme</span>
           </Button>
@@ -77,7 +93,10 @@ export function TopBar() {
           {/* Session Info / Auth */}
           {!isSignedIn ? (
             <SignInButton>
-              <Button className="cursor-pointer bg-white/70 p-4 align-middle hover:bg-white/80">
+              <Button
+                size="sm"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 cursor-pointer px-4 text-xs font-semibold"
+              >
                 Sign in
               </Button>
             </SignInButton>

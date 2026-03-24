@@ -69,7 +69,10 @@ describe("/api/chat POST", () => {
   });
 
   it("returns 400 for missing message or id", async () => {
-    const req = { headers: mockHeaders, json: async () => ({}) } as unknown as NextRequest;
+    const req = {
+      headers: mockHeaders,
+      json: async () => ({}),
+    } as unknown as NextRequest;
     const res = await POST(req);
     expect(res.status).toBe(400);
     const data = (await res.json()) as { error: boolean; message: string };

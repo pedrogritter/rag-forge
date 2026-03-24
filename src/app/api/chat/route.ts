@@ -60,11 +60,15 @@ async function generateChatTitle(
 export async function POST(req: NextRequest) {
   try {
     // Rate limiting (by IP)
-    const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
     const rl = rateLimit(ip, RATE_LIMIT, RATE_WINDOW_MS);
     if (!rl.allowed) {
       return NextResponse.json(
-        { error: true, message: "Too many requests. Please try again shortly." },
+        {
+          error: true,
+          message: "Too many requests. Please try again shortly.",
+        },
         {
           status: 429,
           headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) },

@@ -20,14 +20,10 @@ export default async function ChatPage(props: {
   if (!chat || chat.userId !== userId) return notFound();
 
   return (
-    <main className="container mx-auto flex h-full flex-1 justify-center px-4 py-8">
-      <div className="flex w-full max-w-2xl flex-col">
-        <Chat
-          id={id}
-          initialMessages={chat.messages as UIMessage[]}
-          className="flex h-full flex-1 flex-col"
-        />
-      </div>
-    </main>
+    <Chat
+      id={id}
+      initialMessages={chat.messages as UIMessage[]}
+      className="flex h-full flex-1 flex-col"
+    />
   );
 }

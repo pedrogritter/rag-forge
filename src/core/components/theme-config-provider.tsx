@@ -32,8 +32,7 @@ export function ThemeConfigProvider({
     const preset = colorPresets[colorPreset];
     if (!preset) return;
 
-    const vars =
-      resolvedTheme === "dark" ? preset.dark : preset.light;
+    const vars = resolvedTheme === "dark" ? preset.dark : preset.light;
     const root = document.documentElement;
 
     for (const [key, value] of Object.entries(vars)) {

@@ -12,7 +12,6 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/core/components/ui/avatar";
-import { Card, CardContent } from "@/core/components/ui/card";
 import { useUser } from "@clerk/nextjs";
 import {
   ChevronDown,
@@ -82,7 +81,7 @@ function ToolInvocationPart({ part }: { part: ToolPart }) {
             {sources.map((source, i) => (
               <div
                 key={`source-${i}`}
-                className="bg-muted/50 rounded-md border p-2 text-xs"
+                className="border-border/40 bg-muted/30 rounded-md border p-2 text-xs"
               >
                 <div className="text-muted-foreground mb-1 flex items-center justify-between font-medium">
                   <span>Source {i + 1}</span>
@@ -130,53 +129,66 @@ export function ChatMessage({ message }: ChatMessageProps) {
         message.role === "user" ? "flex-row-reverse" : "flex-row",
       )}
     >
-      <Avatar className="h-8 w-8 shrink-0">
+      <Avatar
+        className={cn(
+          "h-8 w-8 shrink-0 border",
+          message.role === "user" ? "border-primary/20" : "border-border/50",
+        )}
+      >
         {message.role === "user" && user?.imageUrl && (
           <AvatarImage src={user.imageUrl} alt="User's avatar" />
         )}
-        <AvatarFallback>
-          {message.role === "user" ? (usersInitials ?? "U") : "A"}
+        <AvatarFallback
+          className={cn(
+            "text-xs font-medium",
+            message.role === "user"
+              ? "bg-primary/10 text-primary"
+              : "bg-muted text-muted-foreground",
+          )}
+        >
+          {message.role === "user" ? (usersInitials ?? "U") : "R"}
         </AvatarFallback>
       </Avatar>
 
-      <Card
+      <div
         className={cn(
-          "max-w-[80%]",
+          "max-w-[80%] overflow-hidden rounded-xl px-4 py-2.5 text-sm [overflow-wrap:anywhere]",
           message.role === "user"
-            ? "bg-primary/10 dark:bg-primary/20"
-            : "bg-muted",
+            ? "bg-primary/10 text-foreground"
+            : "border-border/30 bg-card/80 border",
         )}
       >
-        <CardContent className="p-3 text-sm">
-          {message.parts.map((part, index) => {
-            if (part.type === "text" && part.text.length > 0) {
-              if (message.role === "user") {
-                return (
-                  <div key={`text-${index}`} className="whitespace-pre-wrap">
-                    {part.text}
-                  </div>
-                );
-              }
+        {message.parts.map((part, index) => {
+          if (part.type === "text" && part.text.length > 0) {
+            if (message.role === "user") {
               return (
-                <div key={`text-${index}`} className="prose-chat">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    rehypePlugins={[rehypeHighlight]}
-                  >
-                    {part.text}
-                  </ReactMarkdown>
+                <div
+                  key={`text-${index}`}
+                  className="leading-relaxed whitespace-pre-wrap"
+                >
+                  {part.text}
                 </div>
               );
             }
+            return (
+              <div key={`text-${index}`} className="prose-chat">
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  rehypePlugins={[rehypeHighlight]}
+                >
+                  {part.text}
+                </ReactMarkdown>
+              </div>
+            );
+          }
 
-            if (isToolUIPart(part)) {
-              return <ToolInvocationPart key={`tool-${index}`} part={part} />;
-            }
+          if (isToolUIPart(part)) {
+            return <ToolInvocationPart key={`tool-${index}`} part={part} />;
+          }
 
-            return null;
-          })}
-        </CardContent>
-      </Card>
+          return null;
+        })}
+      </div>
     </div>
   );
 }

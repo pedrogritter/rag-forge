@@ -113,10 +113,10 @@ export function DocumentUpload({ className }: { className?: string }) {
         onDrop={handleDrop}
         onClick={() => inputRef.current?.click()}
         className={cn(
-          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed p-6 transition-colors",
+          "flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-4 transition-all",
           isDragging
             ? "border-primary bg-primary/5"
-            : "border-muted-foreground/25 hover:border-muted-foreground/50",
+            : "border-border/50 hover:border-muted-foreground/50 hover:bg-accent/30",
           isUploading && "pointer-events-none opacity-50",
         )}
       >
@@ -138,13 +138,13 @@ export function DocumentUpload({ className }: { className?: string }) {
           </>
         ) : (
           <>
-            <Upload className="text-muted-foreground h-8 w-8" />
+            <Upload className="text-muted-foreground h-5 w-5" />
             <div className="text-center">
-              <p className="text-sm font-medium">
+              <p className="text-xs font-medium">
                 Drop a file or click to upload
               </p>
-              <p className="text-muted-foreground mt-1 text-xs">
-                PDF, Markdown, or Text — up to 10 MB
+              <p className="text-muted-foreground mt-0.5 text-[11px]">
+                PDF, MD, TXT — up to 10 MB
               </p>
             </div>
           </>
@@ -153,7 +153,7 @@ export function DocumentUpload({ className }: { className?: string }) {
 
       {/* Result */}
       {result && (
-        <div className="bg-muted flex items-start gap-3 rounded-lg border p-3">
+        <div className="border-border/50 bg-card/80 flex items-start gap-3 rounded-lg border p-3">
           <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
           <div className="min-w-0 flex-1 text-sm">
             <div className="flex items-center gap-2">
