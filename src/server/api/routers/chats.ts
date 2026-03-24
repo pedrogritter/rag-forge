@@ -1,15 +1,30 @@
 import { z } from "zod";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, lt, and } from "drizzle-orm";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { chats } from "@/server/db/schema";
 
+/** Default number of chats per page. */
+const DEFAULT_LIMIT = 25;
+
 export const chatsRouter = createTRPCRouter({
-  /** List all chats for a user, most recent first. */
+  /** List chats for a user with cursor-based pagination, most recent first. */
   list: publicProcedure
-    .input(z.object({ userId: z.string().min(1) }))
+    .input(
+      z.object({
+        userId: z.string().min(1),
+        cursor: z.string().nullish(),
+        limit: z.number().min(1).max(100).default(DEFAULT_LIMIT),
+      }),
+    )
     .query(async ({ ctx, input }) => {
-      return ctx.db
+      const { userId, cursor, limit } = input;
+
+      const conditions = cursor
+        ? and(eq(chats.userId, userId), lt(chats.updatedAt, new Date(cursor)))
+        : eq(chats.userId, userId);
+
+      const items = await ctx.db
         .select({
           id: chats.id,
           title: chats.title,
@@ -17,8 +32,17 @@ export const chatsRouter = createTRPCRouter({
           updatedAt: chats.updatedAt,
         })
         .from(chats)
-        .where(eq(chats.userId, input.userId))
-        .orderBy(desc(chats.updatedAt));
+        .where(conditions)
+        .orderBy(desc(chats.updatedAt))
+        .limit(limit + 1);
+
+      let nextCursor: string | undefined;
+      if (items.length > limit) {
+        const next = items.pop()!;
+        nextCursor = next.updatedAt.toISOString();
+      }
+
+      return { items, nextCursor };
     }),
 
   /** Get a single chat by ID (with messages). */

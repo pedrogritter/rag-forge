@@ -13,7 +13,7 @@ export const vectorConfig = {
   },
   search: {
     similarityThreshold: 0.3,
-    topK: 20,
+    topK: 10,
     keywordWeight: 0.3,
     vectorWeight: 0.7,
   },

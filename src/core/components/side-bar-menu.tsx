@@ -79,10 +79,16 @@ export function SideBarMenu() {
   const pathname = usePathname();
   const utils = api.useUtils();
 
-  const { data: chatList } = api.chats.list.useQuery(
-    { userId: user?.id ?? "" },
-    { enabled: !!user?.id },
-  );
+  const { data: chatData, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    api.chats.list.useInfiniteQuery(
+      { userId: user?.id ?? "" },
+      {
+        enabled: !!user?.id,
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+      },
+    );
+
+  const chatList = chatData?.pages.flatMap((p) => p.items);
 
   const createChat = api.chats.create.useMutation({
     onSuccess: (data) => {
@@ -98,13 +104,25 @@ export function SideBarMenu() {
     onMutate: async (variables) => {
       // Cancel outgoing refetches so they don't overwrite our optimistic update
       await utils.chats.list.cancel();
-      // Snapshot current list for rollback
-      const previousList = utils.chats.list.getData({ userId: user?.id ?? "" });
-      // Optimistically remove the chat from the list
-      utils.chats.list.setData({ userId: user?.id ?? "" }, (old) =>
-        old ? old.filter((c) => c.id !== variables.id) : [],
+      // Snapshot current data for rollback
+      const previousData = utils.chats.list.getInfiniteData({
+        userId: user?.id ?? "",
+      });
+      // Optimistically remove the chat from the infinite list
+      utils.chats.list.setInfiniteData(
+        { userId: user?.id ?? "" },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              items: page.items.filter((c) => c.id !== variables.id),
+            })),
+          };
+        },
       );
-      return { previousList };
+      return { previousData };
     },
     onSuccess: (_data, variables) => {
       toast.success("Chat deleted");
@@ -113,11 +131,11 @@ export function SideBarMenu() {
       }
     },
     onError: (_err, _variables, context) => {
-      // Rollback to previous list on failure
-      if (context?.previousList) {
-        utils.chats.list.setData(
+      // Rollback to previous data on failure
+      if (context?.previousData) {
+        utils.chats.list.setInfiniteData(
           { userId: user?.id ?? "" },
-          context.previousList,
+          context.previousData,
         );
       }
       toast.error("Failed to delete chat");
@@ -226,6 +244,17 @@ export function SideBarMenu() {
                 </div>
               );
             })}
+            {hasNextPage && isSidebarOpen && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-muted-foreground hover:text-foreground mt-1 h-7 w-full text-xs"
+                onClick={() => void fetchNextPage()}
+                disabled={isFetchingNextPage}
+              >
+                {isFetchingNextPage ? "Loading..." : "Load more"}
+              </Button>
+            )}
           </div>
         </div>
 

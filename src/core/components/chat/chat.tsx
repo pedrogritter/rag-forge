@@ -12,7 +12,7 @@ import {
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { ChatMessage } from "./chat-message";
 import { ChatInput } from "./chat-input";
-import { MessageSquare, Sparkles } from "lucide-react";
+import { MessageSquare, Sparkles, RefreshCw } from "lucide-react";
 import { cn } from "@/core/lib/utils";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
@@ -117,7 +117,7 @@ export default function Chat({
                         <button
                           key={suggestion}
                           type="button"
-                          className="border-border/50 bg-card/80 text-muted-foreground hover:border-[var(--rf-accent-muted)] hover:text-foreground inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-all hover:shadow-[0_0_12px_var(--rf-accent-subtle)]"
+                          className="border-border/50 bg-card/80 text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-sm transition-all hover:border-[var(--rf-accent-muted)] hover:shadow-[0_0_12px_var(--rf-accent-subtle)]"
                           onClick={() => {
                             void sendMessage({ text: suggestion });
                           }}
@@ -133,6 +133,20 @@ export default function Chat({
               {messages.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
+              {messages.length > 0 &&
+                messages[messages.length - 1]?.role === "assistant" &&
+                status === "ready" && (
+                  <div className="flex justify-center">
+                    <button
+                      type="button"
+                      className="text-muted-foreground hover:text-foreground hover:bg-accent/50 inline-flex cursor-pointer items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs transition-colors"
+                      onClick={() => void regenerate()}
+                    >
+                      <RefreshCw className="h-3 w-3" />
+                      Regenerate
+                    </button>
+                  </div>
+                )}
               {status === "submitted" && (
                 <div className="text-muted-foreground flex items-center gap-2.5 px-1 text-sm">
                   <div className="flex gap-1">

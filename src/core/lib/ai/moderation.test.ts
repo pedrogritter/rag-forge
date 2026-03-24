@@ -84,7 +84,11 @@ describe("moderateContent (OpenAI API path)", () => {
         results: [
           {
             flagged: true,
-            categories: { violence: true, "violence/graphic": true, hate: false },
+            categories: {
+              violence: true,
+              "violence/graphic": true,
+              hate: false,
+            },
           },
         ],
       }),

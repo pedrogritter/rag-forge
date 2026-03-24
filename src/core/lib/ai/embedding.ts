@@ -54,41 +54,50 @@ export const findRelevantContent = async (userQuery: string) => {
     userQueryEmbedded,
   )})`;
 
-  const vectorResults = await db
-    .select({
-      id: embeddings.id,
-      content: embeddings.content,
-      score: vectorSimilarity,
-      filename: pdfResources.filename,
-      pageNumber: pdfEmbeddings.pageNumber,
-      pageTitle: pdfEmbeddings.pageTitle,
-    })
-    .from(embeddings)
-    .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
-    .leftJoin(pdfResources, eq(pdfResources.resourceId, embeddings.resourceId))
-    .where(gt(vectorSimilarity, search.similarityThreshold))
-    .orderBy(desc(vectorSimilarity))
-    .limit(search.topK);
-
   // Full-text keyword search (tsvector) with PDF metadata
   const tsQuery = sql`plainto_tsquery('english', ${userQuery})`;
   const textRank = sql<number>`ts_rank(${embeddings.searchVector}, ${tsQuery})`;
 
-  const keywordResults = await db
-    .select({
-      id: embeddings.id,
-      content: embeddings.content,
-      score: textRank,
-      filename: pdfResources.filename,
-      pageNumber: pdfEmbeddings.pageNumber,
-      pageTitle: pdfEmbeddings.pageTitle,
-    })
-    .from(embeddings)
-    .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
-    .leftJoin(pdfResources, eq(pdfResources.resourceId, embeddings.resourceId))
-    .where(sql`${embeddings.searchVector} @@ ${tsQuery}`)
-    .orderBy(desc(textRank))
-    .limit(search.topK);
+  // Run vector and keyword searches in parallel (independent queries)
+  const [vectorResults, keywordResults] = await Promise.all([
+    db
+      .select({
+        id: embeddings.id,
+        content: embeddings.content,
+        score: vectorSimilarity,
+        filename: pdfResources.filename,
+        pageNumber: pdfEmbeddings.pageNumber,
+        pageTitle: pdfEmbeddings.pageTitle,
+      })
+      .from(embeddings)
+      .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
+      .leftJoin(
+        pdfResources,
+        eq(pdfResources.resourceId, embeddings.resourceId),
+      )
+      .where(gt(vectorSimilarity, search.similarityThreshold))
+      .orderBy(desc(vectorSimilarity))
+      .limit(search.topK),
+
+    db
+      .select({
+        id: embeddings.id,
+        content: embeddings.content,
+        score: textRank,
+        filename: pdfResources.filename,
+        pageNumber: pdfEmbeddings.pageNumber,
+        pageTitle: pdfEmbeddings.pageTitle,
+      })
+      .from(embeddings)
+      .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
+      .leftJoin(
+        pdfResources,
+        eq(pdfResources.resourceId, embeddings.resourceId),
+      )
+      .where(sql`${embeddings.searchVector} @@ ${tsQuery}`)
+      .orderBy(desc(textRank))
+      .limit(search.topK),
+  ]);
 
   // Reciprocal Rank Fusion (RRF) to combine results
   const k = 60; // RRF constant

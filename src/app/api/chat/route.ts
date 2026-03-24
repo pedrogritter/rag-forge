@@ -180,7 +180,12 @@ export async function POST(req: NextRequest) {
 
     // Load previous messages from DB and append the new message
     const previousMessages = await loadChat(chatId);
-    const messages = [...previousMessages, rawMessage as UIMessage];
+    const allMessages = [...previousMessages, rawMessage as UIMessage];
+
+    // Context window truncation: keep only the most recent messages
+    const maxCtx = modelConfig.maxContextMessages ?? 20;
+    const messages =
+      allMessages.length > maxCtx ? allMessages.slice(-maxCtx) : allMessages;
 
     const allowStorage = modelConfig.tools.useStoreRelevantTool;
 
@@ -250,7 +255,7 @@ export async function POST(req: NextRequest) {
 
     try {
       return result.toUIMessageStreamResponse({
-        originalMessages: messages,
+        originalMessages: allMessages,
         generateMessageId: createIdGenerator({ prefix: "msg", size: 16 }),
         onFinish: async ({ messages: finalMessages }) => {
           await saveChat(chatId, finalMessages);
