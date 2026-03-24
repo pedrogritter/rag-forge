@@ -9,6 +9,7 @@ interface ChatInputProps {
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   disabled?: boolean;
+  maxLength?: number;
 }
 
 export function ChatInput({
@@ -17,6 +18,7 @@ export function ChatInput({
   onSubmit,
   onChange,
   disabled = false,
+  maxLength = 4000,
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -48,6 +50,7 @@ export function ChatInput({
         onKeyDown={handleKeyDown}
         placeholder="Ask something..."
         disabled={isLoading || disabled}
+        maxLength={maxLength}
         rows={1}
         style={{ maxHeight: "9rem" }}
         className={cn(
@@ -55,6 +58,18 @@ export function ChatInput({
           (isLoading || disabled) && "cursor-not-allowed opacity-60",
         )}
       />
+      {input.length > maxLength * 0.9 && (
+        <span
+          className={cn(
+            "absolute bottom-1 left-3 text-xs tabular-nums",
+            input.length >= maxLength
+              ? "text-destructive"
+              : "text-muted-foreground/60",
+          )}
+        >
+          {input.length}/{maxLength}
+        </span>
+      )}
       <Button
         type="submit"
         size="icon"

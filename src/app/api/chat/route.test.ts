@@ -2,6 +2,7 @@ import { POST } from "./route";
 import type { NextRequest } from "next/server";
 import { streamText } from "ai";
 import { rateLimit } from "@/core/lib/rate-limit";
+import { moderateContent } from "@/core/lib/ai/moderation";
 
 // Mock dependencies
 jest.mock("@/core/lib/actions/resources", () => ({
@@ -15,6 +16,12 @@ jest.mock("@/core/lib/ai/providers", () => ({
 }));
 jest.mock("@/core/lib/rate-limit", () => ({
   rateLimit: jest.fn(() => ({ allowed: true })),
+}));
+jest.mock("@/core/lib/ai/moderation", () => ({
+  moderateContent: jest.fn(() => Promise.resolve({ flagged: false })),
+}));
+jest.mock("@clerk/nextjs/server", () => ({
+  auth: jest.fn(() => Promise.resolve({ userId: "user-123" })),
 }));
 jest.mock("ai", () => ({
   streamText: jest.fn(),
@@ -170,5 +177,51 @@ describe("/api/chat POST", () => {
     const data = (await res.json()) as { error: boolean; message: string };
     expect(data.error).toBe(true);
     expect(data.message).toMatch(/Too many requests/);
+  });
+
+  it("returns 400 when message exceeds max length", async () => {
+    const longText = "a".repeat(5000);
+    const req = {
+      headers: mockHeaders,
+      json: async () => ({
+        message: {
+          id: "m1",
+          role: "user",
+          parts: [{ type: "text", text: longText }],
+        },
+        id: "chat-1",
+      }),
+    } as unknown as NextRequest;
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    const data = (await res.json()) as { error: boolean; message: string };
+    expect(data.error).toBe(true);
+    expect(data.message).toMatch(/too long/i);
+  });
+
+  it("returns 400 when moderation flags the message", async () => {
+    const mockedModerate = moderateContent as jest.MockedFunction<
+      typeof moderateContent
+    >;
+    mockedModerate.mockResolvedValueOnce({
+      flagged: true,
+      categories: ["violence"],
+    });
+    const req = {
+      headers: mockHeaders,
+      json: async () => ({
+        message: {
+          id: "m1",
+          role: "user",
+          parts: [{ type: "text", text: "harmful content" }],
+        },
+        id: "chat-1",
+      }),
+    } as unknown as NextRequest;
+    const res = await POST(req);
+    expect(res.status).toBe(400);
+    const data = (await res.json()) as { error: boolean; message: string };
+    expect(data.error).toBe(true);
+    expect(data.message).toMatch(/flagged/i);
   });
 });

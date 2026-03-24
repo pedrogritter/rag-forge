@@ -2,6 +2,36 @@
  * Simple in-memory sliding-window rate limiter.
  * Suitable for single-process deployments. For multi-instance production
  * environments, swap this for a Redis-based implementation.
+ *
+ * ─── Redis upgrade path ───────────────────────────────────────────────
+ * To scale across multiple server instances, replace the in-memory Map
+ * with a Redis sorted-set sliding window. Example using ioredis:
+ *
+ *   import Redis from "ioredis";
+ *   const redis = new Redis(process.env.REDIS_URL);
+ *
+ *   export async function rateLimit(key: string, limit: number, windowMs: number) {
+ *     const now = Date.now();
+ *     const windowStart = now - windowMs;
+ *     const redisKey = `rl:${key}`;
+ *
+ *     const pipeline = redis.pipeline();
+ *     pipeline.zremrangebyscore(redisKey, 0, windowStart); // prune old
+ *     pipeline.zadd(redisKey, now, `${now}:${Math.random()}`); // add current
+ *     pipeline.zcard(redisKey); // count in window
+ *     pipeline.pexpire(redisKey, windowMs); // auto-expire key
+ *     const results = await pipeline.exec();
+ *
+ *     const count = results?.[2]?.[1] as number;
+ *     if (count > limit) {
+ *       return { allowed: false, retryAfterMs: windowMs };
+ *     }
+ *     return { allowed: true };
+ *   }
+ *
+ * Add REDIS_URL as an optional env var in src/env.js and conditionally
+ * use the Redis implementation when it is set.
+ * ──────────────────────────────────────────────────────────────────────
  */
 
 interface WindowEntry {

@@ -1,6 +1,7 @@
 import { assistantConfig, modelConfig } from "@/config";
 import { createResource } from "@/core/lib/actions/resources";
 import { findRelevantContent } from "@/core/lib/ai/embedding";
+import { moderateContent } from "@/core/lib/ai/moderation";
 import { getChatModel } from "@/core/lib/ai/providers";
 import { rateLimit } from "@/core/lib/rate-limit";
 import {
@@ -14,15 +15,19 @@ import {
 } from "ai";
 import { z } from "zod/v3";
 import { type NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { db } from "@/server/db";
 import { chats } from "@/server/db/schema";
 import { eq, sql } from "drizzle-orm";
 
 export const maxDuration = 30;
 
-/** Max chat requests per IP per minute. */
+/** Max chat requests per window. */
 const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60_000;
+
+/** Max characters allowed in a single user message. */
+const MAX_MESSAGE_LENGTH = 4_000;
 
 /** Load previous messages for a chat from the database. */
 async function loadChat(chatId: string): Promise<UIMessage[]> {
@@ -62,7 +67,7 @@ export async function POST(req: NextRequest) {
     // Rate limiting (by IP)
     const ip =
       req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-    const rl = rateLimit(ip, RATE_LIMIT, RATE_WINDOW_MS);
+    const rl = rateLimit(`ip:${ip}`, RATE_LIMIT, RATE_WINDOW_MS);
     if (!rl.allowed) {
       return NextResponse.json(
         {
@@ -74,6 +79,26 @@ export async function POST(req: NextRequest) {
           headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) },
         },
       );
+    }
+
+    // Rate limiting (by authenticated user)
+    const { userId } = await auth();
+    if (userId) {
+      const userRl = rateLimit(`user:${userId}`, RATE_LIMIT, RATE_WINDOW_MS);
+      if (!userRl.allowed) {
+        return NextResponse.json(
+          {
+            error: true,
+            message: "Too many requests. Please try again shortly.",
+          },
+          {
+            status: 429,
+            headers: {
+              "Retry-After": String(Math.ceil(userRl.retryAfterMs / 1000)),
+            },
+          },
+        );
+      }
     }
 
     let body: {
@@ -103,6 +128,36 @@ export async function POST(req: NextRequest) {
         {
           error: true,
           message: "Missing 'message' or 'id' in request body.",
+        },
+        { status: 400 },
+      );
+    }
+
+    // --- Input size validation ---
+    const msg = rawMessage as UIMessage;
+    const messageText = (msg.parts ?? [])
+      .filter((p): p is { type: "text"; text: string } => p.type === "text")
+      .map((p) => p.text)
+      .join("");
+
+    if (messageText.length > MAX_MESSAGE_LENGTH) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: `Message too long (max ${MAX_MESSAGE_LENGTH} characters).`,
+        },
+        { status: 400 },
+      );
+    }
+
+    // --- Content moderation ---
+    const moderation = await moderateContent(messageText);
+    if (moderation.flagged) {
+      return NextResponse.json(
+        {
+          error: true,
+          message:
+            "Your message was flagged as potentially harmful and cannot be processed.",
         },
         { status: 400 },
       );

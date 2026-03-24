@@ -4,14 +4,36 @@ import {
   ingestDocument,
   supportedExtensions,
 } from "@/core/lib/ingestion";
+import { rateLimit } from "@/core/lib/rate-limit";
 
 export const maxDuration = 60;
 
 /** Maximum upload size: 10 MB */
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
+/** Upload rate limit: 5 requests per minute per IP. */
+const UPLOAD_RATE_LIMIT = 5;
+const UPLOAD_RATE_WINDOW_MS = 60_000;
+
 export async function POST(req: NextRequest) {
   try {
+    // Rate limiting (by IP)
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    const rl = rateLimit(`upload:${ip}`, UPLOAD_RATE_LIMIT, UPLOAD_RATE_WINDOW_MS);
+    if (!rl.allowed) {
+      return NextResponse.json(
+        {
+          error: true,
+          message: "Too many uploads. Please try again shortly.",
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil(rl.retryAfterMs / 1000)) },
+        },
+      );
+    }
+
     const formData = await req.formData();
     const file = formData.get("file");
 
