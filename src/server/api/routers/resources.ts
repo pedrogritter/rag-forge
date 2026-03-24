@@ -10,12 +10,24 @@ import { getChatModel } from "@/core/lib/ai/providers";
 let cachedTopics: { data: string[]; expiresAt: number } | null = null;
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
-const STATIC_TIPS = [
+export const STATIC_TIPS = [
   "What topics are in my knowledge base?",
   "Summarize the key concepts you know about",
   "What questions can you help me with?",
   "Upload a PDF to get started",
 ];
+
+/** Extract a JSON array from LLM text that may be wrapped in markdown fences. */
+function extractJsonArray(text: string): string[] | null {
+  // Strip markdown code fences if present
+  const stripped = text.replace(/```(?:json)?\s*/g, "").replace(/```/g, "").trim();
+  try {
+    const parsed = z.array(z.string()).parse(JSON.parse(stripped));
+    return parsed.slice(0, 4);
+  } catch {
+    return null;
+  }
+}
 
 export const resourcesRouter = createTRPCRouter({
   /**
@@ -40,25 +52,27 @@ export const resourcesRouter = createTRPCRouter({
       return STATIC_TIPS;
     }
 
-    const excerpts = samples
-      .map((s, i) => `${i + 1}. ${s.content.slice(0, 300)}`)
-      .join("\n");
-
-    const { text } = await generateText({
-      model: getChatModel(),
-      maxOutputTokens: 200,
-      temperature: 0.7,
-      prompt: `Given these knowledge base excerpts, generate exactly 4 short example questions a user might ask. Return ONLY a JSON array of strings, no other text.\n\nExcerpts:\n${excerpts}`,
-    });
-
     try {
-      const parsed = z.array(z.string()).parse(JSON.parse(text));
-      const topics = parsed.slice(0, 4);
-      cachedTopics = { data: topics, expiresAt: Date.now() + CACHE_TTL_MS };
-      return topics;
+      const excerpts = samples
+        .map((s, i) => `${i + 1}. ${s.content.slice(0, 300)}`)
+        .join("\n");
+
+      const { text } = await generateText({
+        model: getChatModel(),
+        maxOutputTokens: 200,
+        temperature: 0.7,
+        prompt: `Given these knowledge base excerpts, generate exactly 4 short example questions a user might ask. Return ONLY a JSON array of strings, no other text.\n\nExcerpts:\n${excerpts}`,
+      });
+
+      const topics = extractJsonArray(text);
+      if (topics && topics.length > 0) {
+        cachedTopics = { data: topics, expiresAt: Date.now() + CACHE_TTL_MS };
+        return topics;
+      }
     } catch {
-      // If LLM output isn't valid JSON, return static tips
-      return STATIC_TIPS;
+      // LLM call failed — fall through to static tips
     }
+
+    return STATIC_TIPS;
   }),
 });

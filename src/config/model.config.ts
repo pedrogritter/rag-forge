@@ -11,4 +11,7 @@ export const modelConfig = {
     useGetInfoTool: true,
     useStoreRelevantTool: true,
   },
+  /** When true, generates LLM-powered suggestion chips from your knowledge base.
+   *  When false (default), shows static tip prompts — no extra tokens used. */
+  suggestionsEnabled: false,
 };

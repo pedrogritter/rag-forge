@@ -83,15 +83,35 @@ export function SideBarMenu() {
   });
 
   const deleteChat = api.chats.delete.useMutation({
+    onMutate: async (variables) => {
+      // Cancel outgoing refetches so they don't overwrite our optimistic update
+      await utils.chats.list.cancel();
+      // Snapshot current list for rollback
+      const previousList = utils.chats.list.getData({ userId: user?.id ?? "" });
+      // Optimistically remove the chat from the list
+      utils.chats.list.setData({ userId: user?.id ?? "" }, (old) =>
+        old ? old.filter((c) => c.id !== variables.id) : [],
+      );
+      return { previousList };
+    },
     onSuccess: (_data, variables) => {
-      void utils.chats.list.invalidate();
       toast.success("Chat deleted");
       if (pathname === `/dashboard/c/${variables.id}`) {
         router.push("/dashboard");
       }
     },
-    onError: () => {
+    onError: (_err, _variables, context) => {
+      // Rollback to previous list on failure
+      if (context?.previousList) {
+        utils.chats.list.setData(
+          { userId: user?.id ?? "" },
+          context.previousList,
+        );
+      }
       toast.error("Failed to delete chat");
+    },
+    onSettled: () => {
+      void utils.chats.list.invalidate();
     },
   });
 
@@ -150,7 +170,7 @@ export function SideBarMenu() {
                   <Button
                     variant="ghost"
                     className={cn(
-                      "h-8 w-full justify-start",
+                      "h-8 w-full justify-start overflow-hidden",
                       isActive
                         ? "bg-accent/60 text-foreground"
                         : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
@@ -160,9 +180,8 @@ export function SideBarMenu() {
                   >
                     <Link
                       href={`/dashboard/c/${chat.id}`}
-                      title={
-                        isSidebarOpen ? undefined : (chat.title ?? "Untitled")
-                      }
+                      title={chat.title ?? "Untitled"}
+                      className="min-w-0"
                     >
                       <MessageSquare
                         className={cn(

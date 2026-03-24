@@ -12,10 +12,11 @@ import {
 import { Input } from "@/core/components/ui/input";
 import { Separator } from "@/core/components/ui/separator";
 import { useThemeConfigStore } from "@/core/hooks/use-theme-config";
+import { useSettingsStore } from "@/core/hooks/use-settings-store";
 import { colorPresets, colorPresetKeys } from "@/config/theme-presets";
 import type { FontFamily } from "@/config/theme.config";
 import { cn } from "@/core/lib/utils";
-import { Check, RotateCcw, Type } from "lucide-react";
+import { Check, RotateCcw, Type, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 const fontOptions: { value: FontFamily; label: string; sample: string }[] = [
@@ -34,6 +35,12 @@ export default function SettingsPage() {
     reset,
   } = useThemeConfigStore();
 
+  const {
+    suggestionsEnabled,
+    setSuggestionsEnabled,
+    reset: resetSettings,
+  } = useSettingsStore();
+
   const handleBrandSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -46,6 +53,7 @@ export default function SettingsPage() {
 
   const handleReset = () => {
     reset();
+    resetSettings();
     toast.success("Settings reset to defaults");
   };
 
@@ -156,6 +164,46 @@ export default function SettingsPage() {
               Save
             </Button>
           </form>
+        </CardContent>
+      </Card>
+
+      <Separator className="opacity-50" />
+
+      {/* ── Smart Suggestions ── */}
+      <Card className="border-border/50 bg-card/80">
+        <CardHeader>
+          <CardTitle className="text-base">Smart Suggestions</CardTitle>
+          <CardDescription>
+            When enabled, new chats show AI-generated suggestion chips based on
+            your knowledge base. This uses a small amount of LLM tokens per
+            cache refresh (every 5 minutes). When disabled, static tips are
+            shown instead.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSuggestionsEnabled(!suggestionsEnabled)}
+              className={cn(
+                "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors",
+                suggestionsEnabled ? "bg-primary" : "bg-muted",
+              )}
+            >
+              <span
+                className={cn(
+                  "pointer-events-none block h-5 w-5 rounded-full bg-white shadow-sm transition-transform",
+                  suggestionsEnabled ? "translate-x-5" : "translate-x-0",
+                )}
+              />
+            </button>
+            <span className="text-muted-foreground flex items-center gap-1.5 text-sm">
+              <Sparkles className="h-3.5 w-3.5" />
+              {suggestionsEnabled
+                ? "AI-powered suggestions"
+                : "Static tips (no tokens used)"}
+            </span>
+          </div>
         </CardContent>
       </Card>
 

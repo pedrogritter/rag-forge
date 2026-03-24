@@ -16,6 +16,8 @@ import { MessageSquare, Sparkles } from "lucide-react";
 import { cn } from "@/core/lib/utils";
 import { toast } from "sonner";
 import { api } from "@/trpc/react";
+import { useSettingsStore } from "@/core/hooks/use-settings-store";
+import { STATIC_TIPS } from "@/server/api/routers/resources";
 
 export default function Chat({
   id,
@@ -48,9 +50,14 @@ export default function Chat({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, status]);
 
-  const { data: suggestions } = api.resources.sampleTopics.useQuery(undefined, {
-    enabled: messages.length === 0,
-  });
+  const { suggestionsEnabled } = useSettingsStore();
+
+  const { data: dynamicSuggestions } = api.resources.sampleTopics.useQuery(
+    undefined,
+    { enabled: messages.length === 0 && suggestionsEnabled },
+  );
+
+  const suggestions = suggestionsEnabled ? dynamicSuggestions : STATIC_TIPS;
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
