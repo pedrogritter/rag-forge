@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Card,
-  CardContent,
-} from "@/core/components/ui/card";
+import { Card, CardContent } from "@/core/components/ui/card";
 import { Separator } from "@/core/components/ui/separator";
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { cn } from "@/core/lib/utils";
@@ -45,7 +42,7 @@ function ResourceDetail({ resourceId }: { resourceId: string }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex items-center gap-2 py-4 text-sm">
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
         Loading chunks...
       </div>
@@ -68,9 +65,7 @@ function ResourceDetail({ resourceId }: { resourceId: string }) {
               >
                 {(chunk.pageNumber != null || chunk.pageTitle) && (
                   <div className="text-muted-foreground mb-1 font-medium">
-                    {chunk.pageTitle && (
-                      <span>{chunk.pageTitle}</span>
-                    )}
+                    {chunk.pageTitle && <span>{chunk.pageTitle}</span>}
                     {chunk.pageNumber != null && (
                       <span className="text-muted-foreground/70">
                         {chunk.pageTitle ? " — " : ""}Page {chunk.pageNumber}
@@ -177,9 +172,7 @@ export default function ResourcesPage() {
               >
                 <div
                   className="grid cursor-pointer grid-cols-[1fr_72px_64px_64px_100px_36px] items-center gap-2 px-4 py-2.5"
-                  onClick={() =>
-                    setExpandedId(isExpanded ? null : resource.id)
-                  }
+                  onClick={() => setExpandedId(isExpanded ? null : resource.id)}
                 >
                   <div className="flex min-w-0 items-center gap-2">
                     {isExpanded ? (

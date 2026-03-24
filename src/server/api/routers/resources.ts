@@ -56,9 +56,7 @@ export const resourcesRouter = createTRPCRouter({
       .from(embeddings)
       .groupBy(embeddings.resourceId);
 
-    const countMap = new Map(
-      chunkCounts.map((c) => [c.resourceId, c.count]),
-    );
+    const countMap = new Map(chunkCounts.map((c) => [c.resourceId, c.count]));
 
     return rows.map((row) => ({
       id: row.id,

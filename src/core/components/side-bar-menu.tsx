@@ -7,7 +7,14 @@ import { useUser } from "@clerk/nextjs";
 import { Button } from "@/core/components/ui/button";
 import { ScrollArea } from "@/core/components/ui/scroll-area";
 import { Separator } from "@/core/components/ui/separator";
-import { Home, Settings, MessageSquare, Plus, Trash2, Database } from "lucide-react";
+import {
+  Home,
+  Settings,
+  MessageSquare,
+  Plus,
+  Trash2,
+  Database,
+} from "lucide-react";
 import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 import { cn } from "@/core/lib/utils";
 import { api } from "@/trpc/react";
