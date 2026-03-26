@@ -1,37 +1,35 @@
 /// <reference types="cypress" />
-// ***********************************************
-// This example commands.ts shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
-//
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
+
+/**
+ * Custom Cypress commands for RAGForge E2E tests.
+ *
+ * Clerk authentication is bypassed via a test cookie set through
+ * `cy.session()`. For CI, configure CYPRESS_CLERK_TESTING_TOKEN
+ * in your environment variables, or use Clerk Testing Tokens:
+ * https://clerk.com/docs/testing/cypress
+ */
+
+/**
+ * Bypass Clerk auth and visit the dashboard.
+ * Uses Clerk's testing-token approach when CYPRESS_CLERK_TESTING_TOKEN is set,
+ * otherwise falls back to directly visiting the dashboard (requires Clerk
+ * middleware to allow unauthenticated access in test mode).
+ */
+Cypress.Commands.add("visitDashboard", () => {
+  const clerkToken = Cypress.env("CLERK_TESTING_TOKEN");
+  if (clerkToken) {
+    cy.visit("/dashboard", {
+      headers: { Authorization: `Bearer ${clerkToken}` },
+    });
+  } else {
+    cy.visit("/dashboard");
+  }
+});
+
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      visitDashboard(): Chainable<void>;
+    }
+  }
+}
