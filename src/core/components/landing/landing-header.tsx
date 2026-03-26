@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Github } from "lucide-react";
 import { Button } from "@/core/components/ui/button";
 import { cn } from "@/core/lib/utils";
+import { themeConfig } from "@/config/theme.config";
 
 const navLinks = [
   { label: "Features", href: "#features" },
@@ -32,13 +34,23 @@ export function LandingHeader() {
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
         <Link href="/" className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--rf-accent)]">
-            <span className="text-sm font-black text-[var(--rf-text-on-accent)]">
-              R
-            </span>
-          </div>
+          {themeConfig.logoUrl ? (
+            <Image
+              src={themeConfig.logoUrl}
+              alt={themeConfig.brandName}
+              width={28}
+              height={28}
+              className="h-7 w-7 rounded-md object-contain"
+            />
+          ) : (
+            <div className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--rf-accent)]">
+              <span className="text-sm font-black text-[var(--rf-text-on-accent)]">
+                R
+              </span>
+            </div>
+          )}
           <span className="text-foreground text-sm font-bold tracking-tight">
-            RAG Forge
+            {themeConfig.brandName}
           </span>
         </Link>
 

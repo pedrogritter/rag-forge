@@ -1,5 +1,7 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { themeConfig } from "@/config/theme.config";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -8,8 +10,15 @@ export function Footer() {
     <footer className="border-border/40 border-t">
       <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
         <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-          {/* Placeholder for a small logo or icon */}
-          {/* <Icons.logo className="h-6 w-6" /> */}
+          {themeConfig.logoUrl && (
+            <Image
+              src={themeConfig.logoUrl}
+              alt={themeConfig.brandName}
+              width={24}
+              height={24}
+              className="h-6 w-6 object-contain"
+            />
+          )}
           <p className="text-muted-foreground text-center text-sm leading-loose md:text-left">
             Built by{" "}
             <Link

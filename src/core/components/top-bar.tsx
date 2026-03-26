@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/core/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/core/components/ui/sheet";
 import { Menu, Sun, Moon, PanelLeftClose, PanelLeftOpen } from "lucide-react";
@@ -9,6 +10,7 @@ import { SideBarMenu } from "@/core/components/side-bar-menu";
 import { useTheme } from "next-themes";
 import { useSidebarStore } from "@/core/hooks/use-sidebar-store";
 import { useThemeConfigStore } from "@/core/hooks/use-theme-config";
+import { themeConfig } from "@/config/theme.config";
 
 import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 
@@ -16,6 +18,7 @@ export function TopBar() {
   const { theme, setTheme } = useTheme();
   const { isOpen: isSidebarOpen, toggleSidebar } = useSidebarStore();
   const { brandName } = useThemeConfigStore();
+  const logoUrl = themeConfig.logoUrl;
   const { isSignedIn } = useUser();
 
   const toggleTheme = () => {
@@ -62,11 +65,21 @@ export function TopBar() {
 
           {/* Logo and App Name */}
           <Link href="/" className="flex items-center gap-2 pl-2">
-            <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-md shadow-[0_0_8px_var(--rf-accent-subtle)]">
-              <span className="text-primary-foreground text-[10px] font-black">
-                R
-              </span>
-            </div>
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={brandName}
+                width={24}
+                height={24}
+                className="h-6 w-6 rounded-md object-contain"
+              />
+            ) : (
+              <div className="bg-primary flex h-6 w-6 items-center justify-center rounded-md shadow-[0_0_8px_var(--rf-accent-subtle)]">
+                <span className="text-primary-foreground text-[10px] font-black">
+                  R
+                </span>
+              </div>
+            )}
             <span className="text-sm font-semibold tracking-tight">
               {brandName}
             </span>

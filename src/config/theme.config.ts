@@ -36,7 +36,7 @@ export interface ThemeConfig {
  */
 export const themeConfig: ThemeConfig = {
   brandName: "RAG Forge",
-  logoUrl: null,
+  logoUrl: "/rag-forge-logo.png",
   colorPreset: "slate",
   fontFamily: "geist",
   layout: {

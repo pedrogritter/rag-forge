@@ -66,6 +66,7 @@
     "tailwind-merge": "^3.2.0",
     "tw-animate-css": "^1.2.5",
     "unpdf": "^1.4.0",
+    "vercel": "^50.37.0",
     "zod": "^4.3.6",
     "zustand": "^5.0.3"
   },
