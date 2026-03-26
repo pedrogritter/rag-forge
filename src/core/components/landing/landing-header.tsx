@@ -81,7 +81,7 @@ export function LandingHeader() {
               size="sm"
               className="h-8 cursor-pointer bg-[var(--rf-accent)] px-4 text-xs font-semibold text-[var(--rf-text-on-accent)] hover:bg-[var(--rf-accent-hover)]"
             >
-              Get Started
+              Try it out
             </Button>
           </Link>
         </div>

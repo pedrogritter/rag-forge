@@ -96,25 +96,25 @@ const steps = [
 
 const useCases = [
   {
-    name: "MotoMind",
-    domain: "Motorcycle Mechanics",
+    name: "StudyForge",
+    domain: "Academic Study Aid",
     description:
-      "Service manuals and repair guides power an AI mechanic that helps riders troubleshoot, maintain, and fix their bikes.",
-    accent: "oklch(0.65 0.22 25)",
+      "Textbooks, lecture notes, and research papers become a personal AI tutor that helps CS and STEM students master concepts and prep for exams.",
+    accent: "oklch(0.68 0.19 290)",
   },
   {
-    name: "FreediveCoach",
-    domain: "Freediving Training",
+    name: "ArchiveAI",
+    domain: "Historical Research",
     description:
-      "Sports science literature and training protocols create an AI coach for breath-hold athletes pursuing depth and performance.",
-    accent: "oklch(0.75 0.15 180)",
+      "Local archives, oral histories, and museum collections power a researcher that can cross-reference decades of primary sources instantly.",
+    accent: "oklch(0.58 0.12 30)",
   },
   {
-    name: "GaiaAI",
-    domain: "Permaculture & Agriculture",
+    name: "LabNotes",
+    domain: "Research Laboratory",
     description:
-      "Field guides and agricultural research fuel an advisor that helps growers design resilient, productive food systems.",
-    accent: "oklch(0.70 0.17 155)",
+      "Protocols, unpublished findings, and experiment logs power an AI that remembers every failed hypothesis and successful method in your lab.",
+    accent: "oklch(0.72 0.14 160)",
   },
 ];
 
@@ -163,7 +163,7 @@ export default function Home() {
                         size="lg"
                         className="h-11 cursor-pointer bg-[var(--rf-accent)] px-8 text-base font-semibold text-[var(--rf-text-on-accent)] transition-all hover:bg-[var(--rf-accent-hover)] active:scale-[0.97]"
                       >
-                        Get Started
+                        Try it out
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </Link>
@@ -362,7 +362,7 @@ export default function Home() {
                         size="lg"
                         className="h-12 cursor-pointer bg-[var(--rf-accent)] px-8 text-base font-semibold text-[var(--rf-text-on-accent)] transition-all hover:bg-[var(--rf-accent-hover)] active:scale-[0.97]"
                       >
-                        Get Started
+                        Try it out
                         <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
                     </Link>
