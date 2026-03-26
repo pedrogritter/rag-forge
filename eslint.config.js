@@ -60,4 +60,15 @@ export default tseslint.config(
       },
     },
   },
+  // Relax strict type-safety rules in test files — mocks produce `any` types
+  {
+    files: ["**/*.test.ts", "**/*.test.tsx"],
+    rules: {
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
 );
