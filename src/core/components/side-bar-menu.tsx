@@ -79,18 +79,14 @@ export function SideBarMenu() {
   const pathname = usePathname();
   const utils = api.useUtils();
 
-  const {
-    data: chatData,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = api.chats.list.useInfiniteQuery(
-    { userId: user?.id ?? "" },
-    {
-      enabled: !!user?.id,
-      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-    },
-  );
+  const { data: chatData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading: isChatsLoading } =
+    api.chats.list.useInfiniteQuery(
+      { userId: user?.id ?? "" },
+      {
+        enabled: !!user?.id,
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+      },
+    );
 
   const chatList = chatData?.pages.flatMap((p) => p.items);
 
@@ -113,16 +109,19 @@ export function SideBarMenu() {
         userId: user?.id ?? "",
       });
       // Optimistically remove the chat from the infinite list
-      utils.chats.list.setInfiniteData({ userId: user?.id ?? "" }, (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page) => ({
-            ...page,
-            items: page.items.filter((c) => c.id !== variables.id),
-          })),
-        };
-      });
+      utils.chats.list.setInfiniteData(
+        { userId: user?.id ?? "" },
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              items: page.items.filter((c) => c.id !== variables.id),
+            })),
+          };
+        },
+      );
       return { previousData };
     },
     onSuccess: (_data, variables) => {
@@ -194,6 +193,19 @@ export function SideBarMenu() {
             History
           </h2>
           <div className="flex flex-col gap-0.5">
+            {isChatsLoading && isSidebarOpen && (
+              <>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="flex h-8 items-center gap-2 px-3">
+                    <div className="bg-muted h-3.5 w-3.5 shrink-0 animate-pulse rounded" />
+                    <div
+                      className="bg-muted h-3 animate-pulse rounded"
+                      style={{ width: `${60 + (i % 3) * 20}%` }}
+                    />
+                  </div>
+                ))}
+              </>
+            )}
             {chatList?.map((chat) => {
               const isActive = pathname === `/dashboard/c/${chat.id}`;
               return (

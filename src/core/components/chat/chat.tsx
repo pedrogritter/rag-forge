@@ -118,6 +118,17 @@ export default function Chat({
                       Ask anything about your knowledge base.
                     </p>
                   </div>
+                  {suggestionsEnabled && !suggestions && (
+                    <div className="mt-4 flex max-w-md flex-wrap justify-center gap-2">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="border-border/50 bg-muted/50 h-8 animate-pulse rounded-full border"
+                          style={{ width: `${100 + (i % 3) * 30}px` }}
+                        />
+                      ))}
+                    </div>
+                  )}
                   {suggestions && suggestions.length > 0 && (
                     <div className="mt-4 flex max-w-md flex-wrap justify-center gap-2">
                       {suggestions.map((suggestion) => (
