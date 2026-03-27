@@ -12,13 +12,7 @@ import {
   SheetDescription,
 } from "@/core/components/ui/sheet";
 import { cn } from "@/core/lib/utils";
-import {
-  Database,
-  FileText,
-  File,
-  Trash2,
-  Loader2,
-} from "lucide-react";
+import { Database, FileText, File, Trash2, Loader2 } from "lucide-react";
 import { api } from "@/trpc/react";
 import { toast } from "sonner";
 
@@ -77,7 +71,7 @@ function ResourceDetail({ resourceId }: { resourceId: string }) {
                   )}
                 </div>
               )}
-              <p className="text-foreground/80 whitespace-pre-wrap leading-relaxed">
+              <p className="text-foreground/80 leading-relaxed whitespace-pre-wrap">
                 {chunk.content}
               </p>
             </div>
@@ -172,7 +166,7 @@ export default function ResourcesPage() {
             return (
               <Card
                 key={resource.id}
-                className="border-border/50 bg-card/80 transition-colors hover:border-border"
+                className="border-border/50 bg-card/80 hover:border-border transition-colors"
               >
                 <div
                   className="grid cursor-pointer grid-cols-[1fr_72px_64px_64px_100px_36px] items-center gap-2 px-4 py-2.5"
