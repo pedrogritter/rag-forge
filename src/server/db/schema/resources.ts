@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { text, varchar, timestamp } from "drizzle-orm/pg-core";
+import { text, varchar, timestamp, integer } from "drizzle-orm/pg-core";
 import { z } from "zod";
 
 import { nanoid } from "@/core/lib/utils";
@@ -11,6 +11,10 @@ export const resources = createTable("resources", {
     .primaryKey()
     .$defaultFn(() => nanoid()),
   content: text("content").notNull(),
+  type: varchar("type", { length: 10 }).notNull().default("text"),
+  filename: varchar("filename", { length: 255 }),
+  fileHash: varchar("file_hash", { length: 64 }),
+  pageCount: integer("page_count"),
 
   createdAt: timestamp("created_at")
     .notNull()

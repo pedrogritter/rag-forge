@@ -4,10 +4,8 @@ import path from "path";
 import fs from "fs/promises";
 import { createHash } from "crypto";
 import {
-  pdfResources,
   resources,
   embeddings as embeddingsTable,
-  pdfEmbeddings,
 } from "@/server/db/schema";
 import { db } from "@/server/db";
 import { eq, and, sql } from "drizzle-orm";
@@ -76,12 +74,12 @@ async function hasPDFBeenProcessed(
   fileHash: string,
 ): Promise<boolean> {
   const existingResource = await db
-    .select({ id: pdfResources.id })
-    .from(pdfResources)
+    .select({ id: resources.id })
+    .from(resources)
     .where(
       and(
-        eq(pdfResources.filename, fileName),
-        eq(pdfResources.fileHash, fileHash),
+        eq(resources.filename, fileName),
+        eq(resources.fileHash, fileHash),
       ),
     )
     .limit(1);
@@ -238,22 +236,16 @@ async function savePDFResource(
   try {
     const resourceId = nanoid();
 
-    // Insert basic resource record
+    // Insert resource record with PDF metadata
     await db.insert(resources).values({
       id: resourceId,
       content: `PDF: ${filename}`,
+      type: "pdf",
+      filename,
+      fileHash,
+      pageCount,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
-
-    // Insert PDF-specific resource record
-    await db.insert(pdfResources).values({
-      id: nanoid(),
-      resourceId: resourceId,
-      filename: filename,
-      fileHash: fileHash,
-      pageCount: pageCount,
-      lastProcessedAt: new Date(),
     });
 
     return resourceId;
@@ -288,14 +280,10 @@ async function insertEmbeddingAndMetadata({
     content: chunkContent,
     embedding: sql`${formattedEmbedding}::vector`,
     searchVector: sql`to_tsvector('english', ${chunkContent})`,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
-  await db.insert(pdfEmbeddings).values({
-    id: nanoid(),
-    embeddingId,
     pageNumber,
     pageTitle: pageTitle ?? null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 }
 

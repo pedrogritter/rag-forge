@@ -1,8 +1,8 @@
 import { embed, embedMany } from "ai";
 import { db } from "@/server/db";
-import { cosineDistance, desc, gt, sql, eq } from "drizzle-orm";
+import { cosineDistance, desc, gt, sql } from "drizzle-orm";
 import { embeddings } from "@/server/db/schema/embeddings";
-import { pdfEmbeddings, pdfResources } from "@/server/db/schema/pdf-resources";
+import { resources } from "@/server/db/schema/resources";
 import { vectorConfig } from "@/config/vector.config";
 import { getEmbeddingModel } from "@/core/lib/ai/providers";
 
@@ -71,16 +71,12 @@ export const findRelevantContent = async (
         id: embeddings.id,
         content: embeddings.content,
         score: vectorSimilarity,
-        filename: pdfResources.filename,
-        pageNumber: pdfEmbeddings.pageNumber,
-        pageTitle: pdfEmbeddings.pageTitle,
+        filename: resources.filename,
+        pageNumber: embeddings.pageNumber,
+        pageTitle: embeddings.pageTitle,
       })
       .from(embeddings)
-      .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
-      .leftJoin(
-        pdfResources,
-        eq(pdfResources.resourceId, embeddings.resourceId),
-      )
+      .innerJoin(resources, sql`${resources.id} = ${embeddings.resourceId}`)
       .where(gt(vectorSimilarity, similarityThreshold))
       .orderBy(desc(vectorSimilarity))
       .limit(topK),
@@ -90,16 +86,12 @@ export const findRelevantContent = async (
         id: embeddings.id,
         content: embeddings.content,
         score: textRank,
-        filename: pdfResources.filename,
-        pageNumber: pdfEmbeddings.pageNumber,
-        pageTitle: pdfEmbeddings.pageTitle,
+        filename: resources.filename,
+        pageNumber: embeddings.pageNumber,
+        pageTitle: embeddings.pageTitle,
       })
       .from(embeddings)
-      .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
-      .leftJoin(
-        pdfResources,
-        eq(pdfResources.resourceId, embeddings.resourceId),
-      )
+      .innerJoin(resources, sql`${resources.id} = ${embeddings.resourceId}`)
       .where(sql`${embeddings.searchVector} @@ ${tsQuery}`)
       .orderBy(desc(textRank))
       .limit(topK),

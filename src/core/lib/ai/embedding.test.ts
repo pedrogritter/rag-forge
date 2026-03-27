@@ -44,16 +44,17 @@ jest.mock("@/server/db/schema/embeddings", () => ({
     content: "content",
     embedding: "embedding",
     searchVector: "search_vector",
-  },
-}));
-
-jest.mock("@/server/db/schema/pdf-resources", () => ({
-  pdfEmbeddings: {
-    embeddingId: "embedding_id",
     pageNumber: "page_number",
     pageTitle: "page_title",
   },
-  pdfResources: { resourceId: "resource_id", filename: "filename" },
+}));
+
+jest.mock("@/server/db/schema/resources", () => ({
+  resources: {
+    id: "id",
+    filename: "filename",
+  },
+  createTable: jest.fn(),
 }));
 
 const mockedEmbed = embed as jest.MockedFunction<typeof embed>;
@@ -188,15 +189,13 @@ describe("findRelevantContent", () => {
       },
     ];
 
-    // Both queries use chained select().from().leftJoin()...
+    // Both queries use chained select().from().innerJoin()...
     const createChain = (results: unknown[]) => ({
       from: jest.fn(() => ({
-        leftJoin: jest.fn(() => ({
-          leftJoin: jest.fn(() => ({
-            where: jest.fn(() => ({
-              orderBy: jest.fn(() => ({
-                limit: jest.fn(() => Promise.resolve(results)),
-              })),
+        innerJoin: jest.fn(() => ({
+          where: jest.fn(() => ({
+            orderBy: jest.fn(() => ({
+              limit: jest.fn(() => Promise.resolve(results)),
             })),
           })),
         })),
@@ -226,12 +225,10 @@ describe("findRelevantContent", () => {
   it("returns empty array when no results match", async () => {
     const createChain = () => ({
       from: jest.fn(() => ({
-        leftJoin: jest.fn(() => ({
-          leftJoin: jest.fn(() => ({
-            where: jest.fn(() => ({
-              orderBy: jest.fn(() => ({
-                limit: jest.fn(() => Promise.resolve([])),
-              })),
+        innerJoin: jest.fn(() => ({
+          where: jest.fn(() => ({
+            orderBy: jest.fn(() => ({
+              limit: jest.fn(() => Promise.resolve([])),
             })),
           })),
         })),
@@ -258,12 +255,10 @@ describe("findRelevantContent", () => {
 
     const createChain = (results: unknown[]) => ({
       from: jest.fn(() => ({
-        leftJoin: jest.fn(() => ({
-          leftJoin: jest.fn(() => ({
-            where: jest.fn(() => ({
-              orderBy: jest.fn(() => ({
-                limit: jest.fn(() => Promise.resolve(results)),
-              })),
+        innerJoin: jest.fn(() => ({
+          where: jest.fn(() => ({
+            orderBy: jest.fn(() => ({
+              limit: jest.fn(() => Promise.resolve(results)),
             })),
           })),
         })),
@@ -296,12 +291,10 @@ describe("findRelevantContent", () => {
 
     const createChain = (results: unknown[]) => ({
       from: jest.fn(() => ({
-        leftJoin: jest.fn(() => ({
-          leftJoin: jest.fn(() => ({
-            where: jest.fn(() => ({
-              orderBy: jest.fn(() => ({
-                limit: jest.fn(() => Promise.resolve(results)),
-              })),
+        innerJoin: jest.fn(() => ({
+          where: jest.fn(() => ({
+            orderBy: jest.fn(() => ({
+              limit: jest.fn(() => Promise.resolve(results)),
             })),
           })),
         })),

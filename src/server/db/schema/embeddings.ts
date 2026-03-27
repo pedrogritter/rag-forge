@@ -3,6 +3,7 @@ import {
   text,
   timestamp,
   varchar,
+  integer,
   customType,
   index,
 } from "drizzle-orm/pg-core";
@@ -41,6 +42,8 @@ export const embeddings = createTable(
     content: text("content").notNull(),
     embedding: vector("embedding"),
     searchVector: tsvectorType("search_vector"),
+    pageNumber: integer("page_number"),
+    pageTitle: text("page_title"),
     createdAt: timestamp("created_at")
       .notNull()
       .default(sql`now()`),

@@ -41,6 +41,7 @@ async function insertEmbedding(
   resourceId: string,
   chunkContent: string,
   embedding: number[],
+  metadata?: { pageNumber?: number; pageTitle?: string },
 ): Promise<void> {
   const formattedEmbedding = `[${embedding.join(",")}]`;
   await db.insert(embeddingsTable).values({
@@ -49,6 +50,8 @@ async function insertEmbedding(
     content: chunkContent,
     embedding: sql`${formattedEmbedding}::vector`,
     searchVector: sql`to_tsvector('english', ${chunkContent})`,
+    pageNumber: metadata?.pageNumber ?? null,
+    pageTitle: metadata?.pageTitle ?? null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -61,11 +64,17 @@ async function insertEmbedding(
 export async function ingestDocument(
   doc: ExtractedDocument,
 ): Promise<IngestionResult> {
+  // Determine resource type from file extension
+  const isPdf = doc.filename.toLowerCase().endsWith(".pdf");
+
   // Create the resource record
   const resourceId = nanoid();
   await db.insert(resources).values({
     id: resourceId,
     content: `Document: ${doc.filename}`,
+    type: isPdf ? "pdf" : "text",
+    filename: doc.filename,
+    pageCount: doc.pageCount ?? null,
     createdAt: new Date(),
     updatedAt: new Date(),
   });
@@ -82,8 +91,8 @@ export async function ingestDocument(
       const results = await generateEmbeddingsWithTimeout(batchTexts);
 
       await Promise.allSettled(
-        results.map((result) =>
-          insertEmbedding(resourceId, result.content, result.embedding),
+        results.map((result, idx) =>
+          insertEmbedding(resourceId, result.content, result.embedding, batch[idx]?.metadata),
         ),
       );
 

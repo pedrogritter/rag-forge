@@ -8,6 +8,13 @@
       "when": 1774310516195,
       "tag": "0000_sparkling_lady_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1774310516196,
+      "tag": "0001_consolidate_pdf_tables",
+      "breakpoints": true
     }
   ]
 }

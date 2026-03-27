@@ -6,8 +6,6 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import {
   embeddings,
   resources,
-  pdfResources,
-  pdfEmbeddings,
 } from "@/server/db/schema";
 import { getChatModel } from "@/core/lib/ai/providers";
 import { STATIC_TIPS } from "@/config/assistant.config";
@@ -34,17 +32,16 @@ function extractJsonArray(text: string): string[] | null {
 export const resourcesRouter = createTRPCRouter({
   /** List all resources with metadata (filename, page count, chunk count). */
   list: publicProcedure.query(async ({ ctx }) => {
-    // Get all resources with optional PDF metadata
     const rows = await ctx.db
       .select({
         id: resources.id,
         content: resources.content,
         createdAt: resources.createdAt,
-        filename: pdfResources.filename,
-        pageCount: pdfResources.pageCount,
+        type: resources.type,
+        filename: resources.filename,
+        pageCount: resources.pageCount,
       })
       .from(resources)
-      .leftJoin(pdfResources, eq(pdfResources.resourceId, resources.id))
       .orderBy(desc(resources.createdAt));
 
     // Get embedding counts per resource in a single query
@@ -61,7 +58,7 @@ export const resourcesRouter = createTRPCRouter({
     return rows.map((row) => ({
       id: row.id,
       name: row.filename ?? row.content.slice(0, 50),
-      type: row.filename ? "pdf" : ("text" as "pdf" | "text"),
+      type: (row.type ?? "text") as "pdf" | "text",
       pageCount: row.pageCount,
       chunksCount: countMap.get(row.id) ?? 0,
       createdAt: row.createdAt,
@@ -80,67 +77,37 @@ export const resourcesRouter = createTRPCRouter({
 
       if (!resource) return null;
 
-      // PDF metadata (if any)
-      const [pdf] = await ctx.db
-        .select()
-        .from(pdfResources)
-        .where(eq(pdfResources.resourceId, input.id))
-        .limit(1);
-
-      // All chunks with optional page info
+      // All chunks with page metadata
       const chunks = await ctx.db
         .select({
           id: embeddings.id,
           content: embeddings.content,
-          pageNumber: pdfEmbeddings.pageNumber,
-          pageTitle: pdfEmbeddings.pageTitle,
+          pageNumber: embeddings.pageNumber,
+          pageTitle: embeddings.pageTitle,
         })
         .from(embeddings)
-        .leftJoin(pdfEmbeddings, eq(pdfEmbeddings.embeddingId, embeddings.id))
         .where(eq(embeddings.resourceId, input.id))
-        .orderBy(pdfEmbeddings.pageNumber);
+        .orderBy(embeddings.pageNumber);
 
       return {
         id: resource.id,
         content: resource.content,
         createdAt: resource.createdAt,
-        filename: pdf?.filename ?? null,
-        pageCount: pdf?.pageCount ?? null,
+        filename: resource.filename ?? null,
+        pageCount: resource.pageCount ?? null,
         chunks,
       };
     }),
 
-  /** Delete a resource and all related data (embeddings, PDF metadata). */
+  /** Delete a resource and all related data. */
   delete: publicProcedure
     .input(z.object({ id: z.string().min(1) }))
     .mutation(async ({ ctx, input }) => {
       await ctx.db.transaction(async (tx) => {
-        // 1. Get embedding IDs for this resource
-        const embeddingRows = await tx
-          .select({ id: embeddings.id })
-          .from(embeddings)
-          .where(eq(embeddings.resourceId, input.id));
-
-        const embeddingIds = embeddingRows.map((e) => e.id);
-
-        // 2. Delete PDF embeddings (references embedding IDs)
-        if (embeddingIds.length > 0) {
-          for (const embId of embeddingIds) {
-            await tx
-              .delete(pdfEmbeddings)
-              .where(eq(pdfEmbeddings.embeddingId, embId));
-          }
-        }
-
-        // 3. Delete embeddings for this resource
+        // 1. Delete embeddings for this resource
         await tx.delete(embeddings).where(eq(embeddings.resourceId, input.id));
 
-        // 4. Delete PDF resource metadata
-        await tx
-          .delete(pdfResources)
-          .where(eq(pdfResources.resourceId, input.id));
-
-        // 5. Delete the resource itself
+        // 2. Delete the resource itself
         await tx.delete(resources).where(eq(resources.id, input.id));
       });
     }),
