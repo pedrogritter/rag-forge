@@ -108,6 +108,8 @@ export async function POST(req: NextRequest) {
       temperature?: unknown;
       provider?: unknown;
       model?: unknown;
+      topK?: unknown;
+      similarityThreshold?: unknown;
     };
     try {
       body = (await req.json()) as typeof body;
@@ -177,6 +179,18 @@ export async function POST(req: NextRequest) {
     const customProvider =
       typeof body.provider === "string" ? body.provider : undefined;
     const customModel = typeof body.model === "string" ? body.model : undefined;
+    const customTopK =
+      typeof body.topK === "number" &&
+      body.topK >= 1 &&
+      body.topK <= 50
+        ? body.topK
+        : undefined;
+    const customSimilarityThreshold =
+      typeof body.similarityThreshold === "number" &&
+      body.similarityThreshold >= 0 &&
+      body.similarityThreshold <= 1
+        ? body.similarityThreshold
+        : undefined;
 
     // Load previous messages from DB and append the new message
     const previousMessages = await loadChat(chatId);
@@ -210,7 +224,11 @@ export async function POST(req: NextRequest) {
               "The user's question that needs knowledge based information",
             ),
         }),
-        execute: async ({ question }) => findRelevantContent(question),
+        execute: async ({ question }) =>
+          findRelevantContent(question, {
+            topK: customTopK,
+            similarityThreshold: customSimilarityThreshold,
+          }),
       }),
     };
 

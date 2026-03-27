@@ -22,6 +22,7 @@ import { useSettingsStore } from "@/core/hooks/use-settings-store";
 import { colorPresets, colorPresetKeys } from "@/config/theme-presets";
 import { assistantConfig } from "@/config/assistant.config";
 import { modelConfig } from "@/config/model.config";
+import { vectorConfig } from "@/config/vector.config";
 import type { FontFamily } from "@/config/theme.config";
 import { cn } from "@/core/lib/utils";
 import {
@@ -35,6 +36,7 @@ import {
   Palette,
   Bot,
   MessageCircle,
+  Search,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -70,6 +72,10 @@ export default function SettingsPage() {
     setProvider,
     model,
     setModel,
+    topK,
+    setTopK,
+    similarityThreshold,
+    setSimilarityThreshold,
     reset: resetSettings,
   } = useSettingsStore();
 
@@ -132,6 +138,10 @@ export default function SettingsPage() {
           <TabsTrigger value="chat">
             <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
             Chat
+          </TabsTrigger>
+          <TabsTrigger value="retrieval">
+            <Search className="mr-1.5 h-3.5 w-3.5" />
+            Retrieval
           </TabsTrigger>
         </TabsList>
 
@@ -445,6 +455,99 @@ export default function SettingsPage() {
                     ? "AI-powered suggestions"
                     : "Static tips (no tokens used)"}
                 </span>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ═══════════════ Retrieval ═══════════════ */}
+        <TabsContent value="retrieval" className="space-y-4">
+          {/* Top K */}
+          <Card className="border-border/50 bg-card/80">
+            <CardHeader>
+              <CardTitle className="text-base">Top K Results</CardTitle>
+              <CardDescription>
+                Maximum number of knowledge base chunks retrieved per query.
+                Higher values provide more context but may slow responses.
+                Default: {vectorConfig.search.topK}.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min="1"
+                  max="50"
+                  step="1"
+                  value={topK >= 1 ? topK : vectorConfig.search.topK}
+                  onChange={(e) => setTopK(parseInt(e.target.value, 10))}
+                  className="accent-primary h-2 flex-1 cursor-pointer"
+                />
+                <span className="text-foreground w-10 text-right text-sm font-medium tabular-nums">
+                  {topK >= 1 ? topK : vectorConfig.search.topK}
+                </span>
+                {topK >= 1 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground h-7 text-xs"
+                    onClick={() => {
+                      setTopK(-1);
+                      toast.success("Top K reset to default");
+                    }}
+                  >
+                    Reset
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Similarity Threshold */}
+          <Card className="border-border/50 bg-card/80">
+            <CardHeader>
+              <CardTitle className="text-base">Similarity Threshold</CardTitle>
+              <CardDescription>
+                Minimum similarity score for results to be included. Lower
+                values return more results but may include less relevant chunks.
+                Default: {vectorConfig.search.similarityThreshold}.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={
+                    similarityThreshold >= 0
+                      ? similarityThreshold
+                      : vectorConfig.search.similarityThreshold
+                  }
+                  onChange={(e) =>
+                    setSimilarityThreshold(parseFloat(e.target.value))
+                  }
+                  className="accent-primary h-2 flex-1 cursor-pointer"
+                />
+                <span className="text-foreground w-10 text-right text-sm font-medium tabular-nums">
+                  {similarityThreshold >= 0
+                    ? similarityThreshold.toFixed(2)
+                    : vectorConfig.search.similarityThreshold.toFixed(2)}
+                </span>
+                {similarityThreshold >= 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-muted-foreground h-7 text-xs"
+                    onClick={() => {
+                      setSimilarityThreshold(-1);
+                      toast.success("Similarity threshold reset to default");
+                    }}
+                  >
+                    Reset
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>

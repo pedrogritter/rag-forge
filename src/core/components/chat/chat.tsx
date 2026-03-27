@@ -35,6 +35,8 @@ export default function Chat({
     temperature: customTemperature,
     provider: customProvider,
     model: customModel,
+    topK: customTopK,
+    similarityThreshold: customSimilarityThreshold,
   } = useSettingsStore();
 
   const { brandName } = useThemeConfigStore();
@@ -54,6 +56,11 @@ export default function Chat({
             temperature: customTemperature >= 0 ? customTemperature : undefined,
             provider: customProvider || undefined,
             model: customModel || undefined,
+            topK: customTopK >= 1 ? customTopK : undefined,
+            similarityThreshold:
+              customSimilarityThreshold >= 0
+                ? customSimilarityThreshold
+                : undefined,
           },
         };
       },

@@ -44,8 +44,14 @@ export const generateEmbedding = async (value: string): Promise<number[]> => {
   return embedding;
 };
 
-export const findRelevantContent = async (userQuery: string) => {
+export const findRelevantContent = async (
+  userQuery: string,
+  overrides?: { topK?: number; similarityThreshold?: number },
+) => {
   const userQueryEmbedded = await generateEmbedding(userQuery);
+  const topK = overrides?.topK ?? vectorConfig.search.topK;
+  const similarityThreshold =
+    overrides?.similarityThreshold ?? vectorConfig.search.similarityThreshold;
   const { search } = vectorConfig;
 
   // Vector similarity search (cosine) with PDF metadata
@@ -75,9 +81,9 @@ export const findRelevantContent = async (userQuery: string) => {
         pdfResources,
         eq(pdfResources.resourceId, embeddings.resourceId),
       )
-      .where(gt(vectorSimilarity, search.similarityThreshold))
+      .where(gt(vectorSimilarity, similarityThreshold))
       .orderBy(desc(vectorSimilarity))
-      .limit(search.topK),
+      .limit(topK),
 
     db
       .select({
@@ -96,7 +102,7 @@ export const findRelevantContent = async (userQuery: string) => {
       )
       .where(sql`${embeddings.searchVector} @@ ${tsQuery}`)
       .orderBy(desc(textRank))
-      .limit(search.topK),
+      .limit(topK),
   ]);
 
   // Reciprocal Rank Fusion (RRF) to combine results
@@ -142,7 +148,7 @@ export const findRelevantContent = async (userQuery: string) => {
   // Sort by fused score and return top results with metadata for attribution
   return Array.from(scoreMap.values())
     .sort((a, b) => b.score - a.score)
-    .slice(0, search.topK)
+    .slice(0, topK)
     .map(({ content, score, resourceName, pageNumber, pageTitle }) => ({
       content,
       similarity: score,
