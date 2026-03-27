@@ -55,6 +55,7 @@
     "p-limit": "^6.2.0",
     "pino": "^9.7.0",
     "postgres": "^3.4.4",
+    "radix-ui": "^1.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
