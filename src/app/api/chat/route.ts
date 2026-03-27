@@ -180,9 +180,7 @@ export async function POST(req: NextRequest) {
       typeof body.provider === "string" ? body.provider : undefined;
     const customModel = typeof body.model === "string" ? body.model : undefined;
     const customTopK =
-      typeof body.topK === "number" &&
-      body.topK >= 1 &&
-      body.topK <= 50
+      typeof body.topK === "number" && body.topK >= 1 && body.topK <= 50
         ? body.topK
         : undefined;
     const customSimilarityThreshold =

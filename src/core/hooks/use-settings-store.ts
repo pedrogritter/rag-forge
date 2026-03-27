@@ -46,7 +46,8 @@ export const useSettingsStore = create<SettingsState>()(
       setProvider: (provider) => set({ provider }),
       setModel: (model) => set({ model }),
       setTopK: (topK) => set({ topK }),
-      setSimilarityThreshold: (threshold) => set({ similarityThreshold: threshold }),
+      setSimilarityThreshold: (threshold) =>
+        set({ similarityThreshold: threshold }),
       reset: () =>
         set({
           suggestionsEnabled: modelConfig.suggestionsEnabled,
