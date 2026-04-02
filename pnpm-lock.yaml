@@ -46,6 +46,9 @@ importers:
       '@ai-sdk/anthropic':
         specifier: ^3.0.63
         version: 3.0.63(zod@4.3.6)
+      '@ai-sdk/devtools':
+        specifier: ^0.0.15
+        version: 0.0.15
       '@ai-sdk/google':
         specifier: ^3.0.52
         version: 3.0.52(zod@4.3.6)
@@ -256,6 +259,10 @@ packages:
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
+
+  '@ai-sdk/devtools@0.0.15':
+    resolution: {integrity: sha512-zRF+ClRh0fcmvoKclOcmy2hmTDN48ZfHD3y1fC3Lx0vIYaX55uywssiyaA18WlV2mD+N9H4fgPxq+9JeGfMGlQ==}
+    hasBin: true
 
   '@ai-sdk/gateway@3.0.77':
     resolution: {integrity: sha512-UdwIG2H2YMuntJQ5L+EmED5XiwnlvDT3HOmKfVFxR4Nq/RSLFA/HcchhwfNXHZ5UJjyuL2VO0huLbWSZ9ijemQ==}
@@ -927,6 +934,12 @@ packages:
 
   '@floating-ui/utils@0.2.9':
     resolution: {integrity: sha512-MDWhGtE+eHw5JW7lq4qhc5yRLS11ERl1c7Z6Xd0a58DozHES6EnNNwUWbMiG4J9Cgj053Bhk8zvlhFYKVhULwg==}
+
+  '@hono/node-server@1.19.11':
+    resolution: {integrity: sha512-dr8/3zEaB+p0D2n/IUrlPF1HZm586qgJNXK1a9fhg/PzdtkK7Ksd5l312tJX2yBuALqDYBlG20QEbayqPyxn+g==}
+    engines: {node: '>=18.14.1'}
+    peerDependencies:
+      hono: ^4
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -4309,6 +4322,10 @@ packages:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
 
+  hono@4.12.9:
+    resolution: {integrity: sha512-wy3T8Zm2bsEvxKZM5w21VdHDDcwVS1yUFFY6i8UobSsKfFceT7TOwhbhfKsDyx7tYQlmRM5FLpIuYvNFyjctiA==}
+    engines: {node: '>=16.9.0'}
+
   html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
 
@@ -6599,6 +6616,12 @@ snapshots:
       '@ai-sdk/provider-utils': 4.0.21(zod@4.3.6)
       zod: 4.3.6
 
+  '@ai-sdk/devtools@0.0.15':
+    dependencies:
+      '@ai-sdk/provider': 3.0.8
+      '@hono/node-server': 1.19.11(hono@4.12.9)
+      hono: 4.12.9
+
   '@ai-sdk/gateway@3.0.77(zod@4.3.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.8
@@ -7181,6 +7204,10 @@ snapshots:
       react-dom: 19.1.0(react@19.1.0)
 
   '@floating-ui/utils@0.2.9': {}
+
+  '@hono/node-server@1.19.11(hono@4.12.9)':
+    dependencies:
+      hono: 4.12.9
 
   '@humanfs/core@0.19.1': {}
 
@@ -10968,6 +10995,8 @@ snapshots:
       hermes-estree: 0.25.1
 
   highlight.js@11.11.1: {}
+
+  hono@4.12.9: {}
 
   html-escaper@2.0.2: {}
 

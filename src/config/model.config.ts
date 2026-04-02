@@ -12,7 +12,7 @@ export const modelConfig = {
     useStoreRelevantTool: true,
   },
   /** Max output tokens per response. Controls cost and response length. */
-  maxTokens: 2048,
+  maxTokens: 16384,
   /** Max messages sent to the LLM context window. Older messages are trimmed. */
   maxContextMessages: 20,
   /** When true, generates LLM-powered suggestion chips from your knowledge base.
