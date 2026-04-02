@@ -72,4 +72,5 @@ yarn-error.log*
 # data files
 *.pdf
 /data
-/embeddings
+/embeddings.env.backup
+.env*.bak
