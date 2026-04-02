@@ -3,10 +3,7 @@
 import path from "path";
 import fs from "fs/promises";
 import { createHash } from "crypto";
-import {
-  resources,
-  embeddings as embeddingsTable,
-} from "@/server/db/schema";
+import { resources, embeddings as embeddingsTable } from "@/server/db/schema";
 import { db } from "@/server/db";
 import { eq, and, sql } from "drizzle-orm";
 import { extractText } from "unpdf";
@@ -77,10 +74,7 @@ async function hasPDFBeenProcessed(
     .select({ id: resources.id })
     .from(resources)
     .where(
-      and(
-        eq(resources.filename, fileName),
-        eq(resources.fileHash, fileHash),
-      ),
+      and(eq(resources.filename, fileName), eq(resources.fileHash, fileHash)),
     )
     .limit(1);
 
@@ -98,7 +92,9 @@ async function extractTextFromPDF(filePath: string): Promise<PDFContent> {
 
   try {
     const fileBuffer = await fs.readFile(filePath);
-    const result = await extractText(new Uint8Array(fileBuffer), { mergePages: false });
+    const result = await extractText(new Uint8Array(fileBuffer), {
+      mergePages: false,
+    });
     const pdfPages = result.text;
     logger.info(`Successfully read ${pdfPages.length} pages from PDF file`);
     const pages: PageContent[] = [];

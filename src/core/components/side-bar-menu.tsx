@@ -79,14 +79,19 @@ export function SideBarMenu() {
   const pathname = usePathname();
   const utils = api.useUtils();
 
-  const { data: chatData, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading: isChatsLoading } =
-    api.chats.list.useInfiniteQuery(
-      { userId: user?.id ?? "" },
-      {
-        enabled: !!user?.id,
-        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-      },
-    );
+  const {
+    data: chatData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: isChatsLoading,
+  } = api.chats.list.useInfiniteQuery(
+    { userId: user?.id ?? "" },
+    {
+      enabled: !!user?.id,
+      getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    },
+  );
 
   const chatList = chatData?.pages.flatMap((p) => p.items);
 
@@ -109,19 +114,16 @@ export function SideBarMenu() {
         userId: user?.id ?? "",
       });
       // Optimistically remove the chat from the infinite list
-      utils.chats.list.setInfiniteData(
-        { userId: user?.id ?? "" },
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              items: page.items.filter((c) => c.id !== variables.id),
-            })),
-          };
-        },
-      );
+      utils.chats.list.setInfiniteData({ userId: user?.id ?? "" }, (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          pages: old.pages.map((page) => ({
+            ...page,
+            items: page.items.filter((c) => c.id !== variables.id),
+          })),
+        };
+      });
       return { previousData };
     },
     onSuccess: (_data, variables) => {

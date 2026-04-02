@@ -92,7 +92,12 @@ export async function ingestDocument(
 
       await Promise.allSettled(
         results.map((result, idx) =>
-          insertEmbedding(resourceId, result.content, result.embedding, batch[idx]?.metadata),
+          insertEmbedding(
+            resourceId,
+            result.content,
+            result.embedding,
+            batch[idx]?.metadata,
+          ),
         ),
       );
 

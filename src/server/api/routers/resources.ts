@@ -3,10 +3,7 @@ import { eq, sql, count, desc } from "drizzle-orm";
 import { generateText } from "ai";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import {
-  embeddings,
-  resources,
-} from "@/server/db/schema";
+import { embeddings, resources } from "@/server/db/schema";
 import { getChatModel } from "@/core/lib/ai/providers";
 import { STATIC_TIPS } from "@/config/assistant.config";
 
